@@ -1,8 +1,11 @@
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
 import { message } from "./message.js";
-const { invoke } = window.__TAURI__.tauri;
+const { invoke } = window.__TAURI__.core;
+console.log(window)
+console.log(window.__TAURI__)
+console.log(window.__TAURI_PLUGIN_DIALOG__)
 const { open } = window.__TAURI__.dialog;
-const { appDir } = window.__TAURI__.path;
+// const { appDir } = window.__TAURI__.Manager;
 
 await initializeKeys("deepl");
 
@@ -87,7 +90,6 @@ targetFileInput.addEventListener("click", async (event) => {
     try {
         const selected = await open({
             directory: true,
-            defaultPath: await appDir(),
         });
 
         if (selected) {

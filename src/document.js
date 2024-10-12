@@ -1,6 +1,6 @@
 import { message } from "./message.js";
 
-const { invoke } = window.__TAURI__.tauri;
+const { invoke } = window.__TAURI__.core;
 
 const source_file_input = document.getElementById("original-file-input")
 

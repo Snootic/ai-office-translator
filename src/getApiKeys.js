@@ -3,7 +3,7 @@ let keys;
 
 async function initializeKeys(model) {
     
-    const { invoke } = window.__TAURI__.tauri;
+    const { invoke } = window.__TAURI__.core;
     if (model.includes("gpt")){
         keys = await invoke('get_chatgpt_keys');
     }else{

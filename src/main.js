@@ -1,5 +1,5 @@
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
-const { invoke } = window.__TAURI__.tauri;
+const { invoke } = window.__TAURI__.core;
 
 const model_select = document.getElementById("model-selector")
 

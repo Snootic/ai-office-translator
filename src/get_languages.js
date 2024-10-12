@@ -1,4 +1,4 @@
-const { invoke } = window.__TAURI__.tauri;
+const { invoke } = window.__TAURI__.core;
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
 
 await initializeKeys("deepl")
