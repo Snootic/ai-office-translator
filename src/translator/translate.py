@@ -12,11 +12,7 @@ from sys import _getframe
 class Translate:
     # All returns must be json parsable
     
-    def __init__(self) -> None:
-        self.model:str
-        self.API_KEY: str
-    
-    def main(self,api_key: str, model: str, **kwargs):
+    def __init__(self, api_key: str, model: str, **kwargs) -> None:
         self.API_KEY = api_key
         self.model = model
         if model.__contains__("gpt"):
@@ -432,5 +428,3 @@ class Translate:
         if self.model.__contains__("gpt"):
             return self.gpt_translate_text(*args,**kwargs)
         return self.deepl_translate_text(*args,**kwargs)
-
-translate = Translate()

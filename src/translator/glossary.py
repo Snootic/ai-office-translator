@@ -4,12 +4,9 @@ import json, deepl
 #todo add method overload
 
 class Glossario():
-    def __init__(self) -> None:
-        self.API_KEY: str
-        self.glossario: deepl.GlossaryInfo | str
-
-    def main(self,api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.API_KEY = api_key
+        self.glossario: deepl.GlossaryInfo | str
 
     def create_from_excel(self, spreadsheet_path, file_name, file_path, source_language, target_language, excluded_keys:list = None) -> None:
         df = pd.read_excel(spreadsheet_path)
@@ -106,6 +103,3 @@ class Glossario():
             csv_data=csv_file
         )
         return self.glossary.__dict__
-
-
-glossario = Glossario()

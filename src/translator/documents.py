@@ -215,6 +215,3 @@ class File:
         properties["token count"] = len(tokens)
                 
         return properties
-    
-
-file = File()

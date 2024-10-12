@@ -7,7 +7,7 @@ pub mod glossary_handler {
         handle_python_call(
             "../src/translator/glossary.py", 
             "glossary", 
-            "glossario", 
+            "Glossario", 
             Some(vec![api_key]), 
             "get_glossaries", 
             None, 

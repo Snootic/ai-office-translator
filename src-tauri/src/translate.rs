@@ -12,7 +12,7 @@ pub mod translate_handler {
         handle_python_call(
             "../src/translator/translate.py",
             "translate",
-            "translate",
+            "Translate",
             Some(vec![api_key, model]),
             "translate_document",
             Some(args),

@@ -5,48 +5,48 @@ use pyo3::types::{PyDict, PyList, PyTuple};
 
 use serde_json::{json, Value};
 
-pub fn call_python(file_path: &str, module: &str, object: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> PyResult<Value> {
+pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> PyResult<Value> {
 
     let file_name = format!("{}.py",module);
     let code = fs::read_to_string(file_path).expect("Python file not found");
+    
     Python::with_gil(|py| {
 
-        let sys = py.import("sys")?;
-        let path = sys.getattr("path")?;
-        path.call_method1("append", ("../.venv/Lib/site-packages",))?;
+        let py_module = PyModule::from_code_bound(py, &code, &file_name, module)?;
 
-        let py_module = PyModule::from_code(py, &code, &file_name, module)?;
+        let py_object = py_module.getattr(class)?;
 
-        let py_object = py_module.getattr(object)?;
+        let py_class: Bound<'_, PyAny>;
 
         if let Some(object_args) = object_args{
-            let method_args = PyTuple::new(py, object_args);
-            py_object.call_method1("main", method_args)?;
+            let method_args = PyTuple::new_bound(py, object_args);
+            py_class = py_object.call1(method_args)?;
+        }else{
+            py_class = py_object.call0()?;
         }
-        
 
         let raw_result = match (args, kwargs) {
             (None, None) => {
-                py_object.call_method0(method)?
+                py_class.call_method0(method)?
             }
             (Some(arg_list), None) => {
-                let method_args = PyTuple::new(py, arg_list);
-                py_object.call_method1(method, method_args)?
+                let method_args = PyTuple::new_bound(py, arg_list);
+                py_class.call_method1(method, method_args)?
             }
             (Some(arg_list), Some(kwarg_list)) => {
-                let method_args = PyTuple::new(py, arg_list);
-                let method_kwargs = PyDict::new(py);
+                let method_args = PyTuple::new_bound(py, arg_list);
+                let method_kwargs = PyDict::new_bound(py);
                 for (key, value) in kwarg_list {
                     method_kwargs.set_item(key, value)?;
                 }
-                py_object.call_method(method, method_args, Some(&method_kwargs))?
+                py_class.call_method(method, method_args, Some(&method_kwargs))?
             }
             (None, Some(kwarg_list)) => {
-                let method_kwargs = PyDict::new(py);
+                let method_kwargs = PyDict::new_bound(py);
                 for (key, value) in kwarg_list {
                     method_kwargs.set_item(key, value)?;
                 }
-                py_object.call_method(method, (), Some(&method_kwargs))?
+                py_class.call_method(method, (), Some(&method_kwargs))?
             }
         };
 
@@ -55,7 +55,7 @@ pub fn call_python(file_path: &str, module: &str, object: &str, object_args: Opt
     })
 }
 
-fn convert_to_json(py_obj: &PyAny) -> PyResult<Value> {
+fn convert_to_json(py_obj: pyo3::Bound<'_, pyo3::PyAny, >) -> PyResult<Value> {
     if let Ok(py_list) = py_obj.downcast::<PyList>() {
         let json_array: PyResult<Vec<Value>> = py_list
             .iter()
