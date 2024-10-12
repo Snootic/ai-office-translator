@@ -40,7 +40,7 @@ pub mod documents_handler {
         handle_python_call(
             "../src/translator/documents.py", 
             "documents", 
-            "file", 
+            "File", 
             None, 
             "load_document", 
             Some(args), 

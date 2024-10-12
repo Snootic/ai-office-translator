@@ -1,16 +1,23 @@
 from io import BytesIO
 from docx import Document
 from pptx import Presentation
-import pandas as pd
 from typing import Union, IO
+from pypdf import PdfReader
+import pandas as pd
 import tiktoken
 import os
+import datetime
 import json
-import sys
 
 class File:
     def __init__(self) -> None:
         pass
+    
+    def tokenize(self,text):
+        enc = tiktoken.encoding_for_model("gpt-4o")
+        tokens = enc.encode(text)
+
+        return tokens
     
     def load_document(self, file: Union[str, IO[bytes]] = None):
         if isinstance(file, str):
@@ -24,6 +31,8 @@ class File:
             return self.load_excel(file)
         elif ext == ".pptx":
             return self.load_pptx(file)
+        elif ext == ".pdf":
+            return self.load_pdf(file)
         else:
             raise ValueError("Tipo de arquivo não suportado. Por favor, insira um arquivo .docx, .xlsx ou .pptx.")
 
@@ -44,7 +53,7 @@ class File:
         for key in properties_keys:
             properties[key] = prs.core_properties.__getattribute__(key)
 
-        properties["slide_count"] = len(prs.slides)
+        properties["slide count"] = len(prs.slides)
 
         tokens = []
         final_text = ""
@@ -63,7 +72,7 @@ class File:
                         table_data = []
                         for row in table.rows:
                             for cell in row.cells:
-                                if isinstance(cell, (int,float)) or not cell.strip():
+                                if isinstance(cell, (int,float)) or not cell.text.strip():
                                         continue
                                 final_text += cell.text.rstrip()
                                 pretokens = self.tokenize(cell.text.rstrip())
@@ -110,13 +119,24 @@ class File:
                         except Exception as e:
                             continue
                                 
-        properties["word_count"] = len(final_text.split(" "))
+        properties["word count"] = len(final_text.split(" "))
 
-        properties["tokens"] = tokens
+        # properties["tokens"] = tokens
+        
+        try:
+            properties["created"] = datetime.datetime.isoformat(properties["created"])
+            properties["last_printed"] = datetime.datetime.isoformat(properties["last_printed"])
+            properties["modified"] = datetime.datetime.isoformat(properties["modified"])
+        except:
+            pass
+        
+        properties["tokens count"] = len(tokens)
 
-        properties["tokens_count"] = len(tokens)
+        result = json.dumps(obj=properties,skipkeys=True, default=lambda o: '<not serializable>',indent=2,ensure_ascii=False)
+        
+        # print(json.loads(result))
 
-        return properties
+        return json.loads(result)
 
     def load_word(self, file: str | IO[bytes ]= None):
         try:
@@ -149,17 +169,49 @@ class File:
 
         properties["word_count"] = len(words)
 
-        properties["tokens"] = tokens
-
+        # properties["tokens"] = tokens
+        
+        
+        try:
+            properties["created"] = datetime.datetime.isoformat(properties["created"])
+            properties["last_printed"] = datetime.datetime.isoformat(properties["last_printed"])
+            properties["modified"] = datetime.datetime.isoformat(properties["modified"])
+        except:
+            pass
         properties["tokens_count"] = len(tokens)
         
+        result = json.dumps(obj=properties,skipkeys=True, default=lambda o: '<not serializable>',indent=2,ensure_ascii=False)
+        
+        return json.loads(result)
+    
+    def load_pdf(self, file: str | IO[bytes ]= None, pdf_password: str = None):
+        reader = PdfReader(file)
+        number_of_pages = reader.get_num_pages()
+        
+        metadata = reader.metadata
+
+        text = ""
+
+        for page in reader.pages:
+            text += page.extract_text()
+
+        properties = {}
+        
+        properties["Creator"] = metadata.creator
+        properties["Creation Date"] = datetime.datetime.isoformat(metadata.creation_date)
+        properties["Modification Date"] = datetime.datetime.isoformat(metadata.modification_date)
+        
+        words = text.split(" ")
+
+        while "" in words:
+            words.remove("")
+        
+        tokens = self.tokenize(text)
+        
+        properties["number of pages"] = number_of_pages
+        properties["word count"] = len(words)
+        
+        # properties["tokens"] = tokens
+        properties["token count"] = len(tokens)
+                
         return properties
-    
-    def tokenize(self,text):
-        enc = tiktoken.encoding_for_model("gpt-4o")
-        tokens = enc.encode(text)
-
-        return tokens
-    
-
-file = File()

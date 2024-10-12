@@ -7,7 +7,7 @@ pub mod utils_handler {
         handle_python_call(
             "../src/translator/utils.py", 
             "utils", 
-            "gpt",
+            "GPTAccount",
             Some(vec![api_key]), 
             "models", 
             None, 
@@ -20,7 +20,7 @@ pub mod utils_handler {
         handle_python_call(
             "../src/translator/utils.py", 
             "utils", 
-            "deep",
+            "DeeplAccount",
             Some(vec![api_key]), 
             "get_languages", 
             Some(vec!["source"]), 
@@ -33,7 +33,7 @@ pub mod utils_handler {
         handle_python_call(
             "../src/translator/utils.py", 
             "utils", 
-            "deep",
+            "DeeplAccount",
             Some(vec![api_key]), 
             "get_languages", 
             Some(vec!["target"]), 
@@ -46,7 +46,7 @@ pub mod utils_handler {
         handle_python_call(
             "../src/translator/utils.py", 
             "utils", 
-            "deep",
+            "DeeplAccount",
             Some(vec![api_key]), 
             "check_usage", 
             None, 

@@ -1,14 +1,8 @@
-import json
 import deepl
-import openai
 from openai import OpenAI
-import sys
 
 class DeeplAccount():
-    def __init__(self) -> None:
-        self.API_KEY: str
-        
-    def main(self,api_key: str):
+    def __init__(self,api_key: str) -> None:
         self.API_KEY = api_key
 
     def check_usage(self) -> list:
@@ -46,14 +40,10 @@ class DeeplAccount():
         return languages
 
 class GPTAccount():
-    def __init__(self) -> None:
-        self.API_KEY: str
-        self.CLIENT: OpenAI
-        
-    def main(self,api_key: str):
+    def __init__(self,api_key: str) -> None:
         self.API_KEY = api_key
         self.CLIENT = OpenAI(api_key=self.API_KEY)
-    
+
     def models(self):
         gpt_models = self.CLIENT.models.list()
         
@@ -69,6 +59,3 @@ class GPTAccount():
     def account_billing():
         #TODO
         pass
-
-gpt = GPTAccount()
-deep = DeeplAccount()
