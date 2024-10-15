@@ -36,6 +36,10 @@ async function handleTranslation(formData) {
     if (document.getElementById("model-selector").value.includes("gpt")){
         await initializeKeys("gpt");
     }
+
+    const loadingSpinner = document.getElementById("loading-spinner");
+    loadingSpinner.classList.add("show");
+
     const originalFile = formData.get("original-file-input");
     if (!originalFile) {
         console.error("Nenhum arquivo foi selecionado.");
@@ -64,6 +68,8 @@ async function handleTranslation(formData) {
         } catch (error) {
             console.error("Erro:", error);
             message("Ocorreu um erro!");
+        } finally {
+            loadingSpinner.classList.remove("show");
         }
     };
 }
