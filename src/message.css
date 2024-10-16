@@ -33,15 +33,15 @@
 
 @media (prefers-color-scheme: dark) {
 .msg {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+    color: #0f0f0f98;
+    background-color: #fff;
 }
 }
 
 @media (prefers-color-scheme: white) {
 .msg {
-    color: #0f0f0f98;
-    background-color: #ffffff;
+    color: #fff;
+    background-color: #0f0f0f98;
 }
 }
 
