@@ -155,7 +155,7 @@ select{
   }
 }
   
-@media (prefers-color-scheme: white) {
+@media (prefers-color-scheme: light) {
   :root{
     --backgroundColor: #f6f6f6;
     --fontColor: #333;
