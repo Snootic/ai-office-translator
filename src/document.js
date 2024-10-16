@@ -33,7 +33,7 @@ source_file_input.addEventListener("change", function(){
                     }
             
                     const p = document.createElement("p");
-                    p.textContent = `${key}: ${value}`;
+                    p.innerHTML = `<strong>${key}</strong>: ${value}`;
                     doc_div.appendChild(p);
                 }
             }
