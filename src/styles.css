@@ -14,6 +14,10 @@ body {
   background-color: #f0f0f0;
 }
 
+.intro{
+  text-align: center;
+}
+
 header {
   background-color: #d83939;
   color: #fff;
