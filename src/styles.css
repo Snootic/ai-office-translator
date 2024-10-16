@@ -2,8 +2,9 @@
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  background-color: #f6f6f6;
-  color: #333;
+  background-color: var(--backgroundColor);
+  color: var(--fontColor);
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -11,7 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f6f6f6;
+  background-color: var(--backgroundColor);
 }
 
 .intro{
@@ -31,7 +32,7 @@ main {
 }
 
 .translator-form, .confirm-submit {
-  background: #fff;
+  background: var(--backgroundColor2);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -48,11 +49,11 @@ button {
 }
 
 button:hover {
-  background-color: #335bb5;
+  background-color: #8a0000;
 }
 
 button:active {
-  background-color: #2b4a8f;
+  background-color: #d83939;
 }
 
 .glossary-div, .parameters, .file-input-div {
@@ -69,13 +70,23 @@ input[type="file"], input[type="text"], select {
   width: 100%;
 }
 
+input, select, select option{
+  background-color: var(--inputColor);
+  color: var(--inputFontColor);
+}
+
+select{
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
 .confirm-submit {
   display: none;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* z-index: 10; */
   width: 60%;
 }
 
@@ -87,7 +98,7 @@ input[type="file"], input[type="text"], select {
 
 .document-info {
   margin-top: 2rem;
-  background: #fff;
+  background: var(--backgroundColor2);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -116,11 +127,10 @@ input[type="file"], input[type="text"], select {
   left: 50%;
   width: 50px;
   height: 50px;
-  border: 5px solid rgba(0, 0, 0, 0.1);
+  border: 5px solid var(--spinnerBorderColor);
   border-radius: 50%;
-  border-top-color: #000;
+  border-top-color: var(--spinnerColor);
   animation: spin 1s linear infinite;
-  /* z-index: 1000; */
 }
 
 .spinner.show{
@@ -130,5 +140,29 @@ input[type="file"], input[type="text"], select {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-color-scheme: white) {
+  :root{
+    --backgroundColor: #2f2f2f;
+    --fontColor: #fff;
+    --backgroundColor2: rgb(26, 26, 26);
+    --spinnerColor: #ff0000;
+    --spinnerBorderColor: rgba(255, 255, 255, 0.541);
+    --inputColor: #2f2f2f;
+    --inputFontColor: #fff;
+  }
+}
+  
+@media (prefers-color-scheme: dark) {
+  :root{
+    --backgroundColor: #f6f6f6;
+    --fontColor: #333;
+    --backgroundColor2: #fff;
+    --spinnerColor: #ff0000;
+    --spinnerBorderColor: rgba(0, 0, 0, 0.1);
+    --inputColor: #eeeeee;
+    --inputFontColor: #333;
   }
 }
