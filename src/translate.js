@@ -41,6 +41,7 @@ async function handleTranslation(formData) {
     loadingSpinner.classList.add("show");
 
     document.body.style.pointerEvents = "none";
+    document.body.style.overflow = 'hidden';              
 
     const originalFile = formData.get("original-file-input");
     if (!originalFile) {
@@ -73,6 +74,7 @@ async function handleTranslation(formData) {
             } finally {
                 loadingSpinner.classList.remove("show");
                     document.body.style.pointerEvents = "auto";
+                    document.body.style.overflow = '';
             }
     };
 }
@@ -114,3 +116,5 @@ targetFileInput.addEventListener("click", async (event) => {
         console.error("Erro ao selecionar diretório:", error);
     }
 });
+
+
