@@ -247,3 +247,23 @@ select{
     padding: 0.5%;
   }
 }
+
+@media (max-width: 768px){
+  #translator-div {
+    flex-direction: column;
+  }
+
+  #translator-form-div, #document-info-div {
+    width: 100%;
+    margin: 0;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .input-button-container{
+    align-items: center;
+  }
+
+}
