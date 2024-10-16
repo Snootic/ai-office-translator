@@ -10,7 +10,7 @@
     text-align: center;
     border-radius: 20px;
     padding: 20px;
-    z-index: 1;
+    z-index: 1000;
     bottom: 5%;
     font-size: 1rem;
     align-self: center;

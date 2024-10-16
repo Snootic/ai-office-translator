@@ -40,6 +40,8 @@ async function handleTranslation(formData) {
     const loadingSpinner = document.getElementById("loading-spinner");
     loadingSpinner.classList.add("show");
 
+    document.body.style.pointerEvents = "none";
+
     const originalFile = formData.get("original-file-input");
     if (!originalFile) {
         console.error("Nenhum arquivo foi selecionado.");
@@ -52,25 +54,26 @@ async function handleTranslation(formData) {
         const fileData = new Uint8Array(reader.result);
         let args = [formData.get("target-file-input"),formData.get("target-language"),formData.get("source-language")]
         let model = document.getElementById("model-selector").value
-        try {
-            const result = await invoke("translate_document", {
-                apiKey: apiKey,
-                model: model,
-                fileData: Array.from(fileData),
-                fileName: originalFile.name,
-                args: args,
-                kwargs: null
-            });
+            try {
+                const result = await invoke("translate_document", {
+                    apiKey: apiKey,
+                    model: model,
+                    fileData: Array.from(fileData),
+                    fileName: originalFile.name,
+                    args: args,
+                    kwargs: null
+                });
 
-            const parsedResult = JSON.parse(result);
-            console.log(parsedResult.output);
-            message(parsedResult.success ? "Arquivo traduzido com sucesso!" : "Falha na tradução :(");
-        } catch (error) {
-            console.error("Erro:", error);
-            message("Ocorreu um erro!");
-        } finally {
-            loadingSpinner.classList.remove("show");
-        }
+                const parsedResult = JSON.parse(result);
+                console.log(parsedResult.output);
+                message(parsedResult.success ? "Arquivo traduzido com sucesso!" : "Falha na tradução :(");
+            } catch (error) {
+                console.error("Erro:", error);
+                message("Ocorreu um erro!");
+            } finally {
+                loadingSpinner.classList.remove("show");
+                    document.body.style.pointerEvents = "auto";
+            }
     };
 }
 

@@ -1,30 +1,93 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
-  line-height: 20px;
-  font-weight: 400;
-
-  color: #0f0f0f;
+  line-height: 1.5;
   background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  color: #333;
 }
 
-main {
+body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+}
+
+header {
+  background-color: #d83939;
+  color: #fff;
+  width: 100%;
   text-align: center;
 }
 
-h1 {
-  text-align: center;
-  margin-top: 30px;
+main {
+  padding: 2rem;
+  width: 80%;
+}
+
+.translator-form, .confirm-submit {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+  background-color: #d83939;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #335bb5;
+}
+
+button:active {
+  background-color: #2b4a8f;
+}
+
+.glossary-div, .parameters, .file-input-div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+input[type="file"], input[type="text"], select {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.confirm-submit {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* z-index: 10; */
+  width: 60%;
+}
+
+.confirm-button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.document-info {
+  margin-top: 2rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .quota-info{
@@ -33,135 +96,13 @@ h1 {
   line-height: 0.5em;
 }
 
-.input-button-container {
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-}
-
-.label-input {
-  margin-top: 1em;
-  font-size: 15px;
-  text-align: left;
-}
-
-.file-input {
-  padding: 8px;
-  width: 100%;
-  height: 34px;
-  align-self: left;
-}
-
-button {
-  cursor: pointer;
-  width: 30%;
-  height: 50px;
-  margin-top: 1em;
-}
-
-select,
-select option,
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-  outline: none;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-.input-div{
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  width: 95%;
-}
-
-.confirm-submit{
-  position:absolute;
-  display: none;
-  flex-direction: column;
-  width: 70%;
-  height: auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 15px;
-  align-self: center;
-  background-color: #dddddd;
-
+#glossary-div{
+  display:none;                               
 }
 
 .show{
   display:flex!important;
   flex-direction: column;
-}
-
-select {
-  margin-bottom: 1em;
-}
-
-.select#glossary-select{
-  width: 65%;
-}
-
-#criar-glossario{
-  margin-left: 1em;
-  width: 35%;
-  max-width: fit-content;
-}
-
-#translator-div{
-  display: flex;
-}
-
-#translator-form-div{
-  width: 55%;
-  left: auto;
-  border: 1px solid transparent;
-  border-color: #644d72;
-  padding: 10px;
-}
-
-#document-info-div{
-  width: 45%;
-  margin-left: 1%;
-  border: 1px solid transparent;
-  border-color: #644d72;
-  padding: 10px;
-}
-
-#glossary-div{
-  display:none;                               
-}
-
-.required-parameters{
-  display: flex;
-}
-
-select{
-  margin-right: 5px;
-}
-
-#document-info-div{
-  text-align: left;
-}
-
-.confirm-button-container{
-  width: 100%;
 }
 
 .spinner {
@@ -175,7 +116,7 @@ select{
   border-radius: 50%;
   border-top-color: #000;
   animation: spin 1s linear infinite;
-  z-index: 10;
+  /* z-index: 1000; */
 }
 
 .spinner.show{
@@ -186,84 +127,4 @@ select{
   to {
     transform: rotate(360deg);
   }
-}
-
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  select option,
-  select option:checked,
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
-  
-  .confirm-submit{
-    background-color: #444444;
-  }
-}
-
-@media (prefers-color-scheme: white) {
-  :root {
-    color: #2f2f2f;
-    background-color: #f6f6f6;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  select,
-  select option,
-  input,
-  button {
-    color: #0f0f0f98;
-    background-color: #ffffff;
-  }
-  button:active {
-    background-color: #f6f6f6;
-  }
-  .confirm-submit{
-    background-color: #000000;
-  }
-}
-
-@media (max-width: 1400px){
-  #criar-glossario{
-    font-size: 0.9em;
-    padding: 0.5%;
-  }
-}
-
-@media (max-width: 768px){
-  #translator-div {
-    flex-direction: column;
-  }
-
-  #translator-form-div, #document-info-div {
-    width: 100%;
-    margin: 0;
-  }
-
-  button {
-    width: 100%;
-  }
-
-  .input-button-container{
-    align-items: center;
-  }
-
 }
