@@ -31,14 +31,14 @@
   }
 
 
-@media (prefers-color-scheme: white) {
+@media (prefers-color-scheme: dark) {
 .msg {
     color: #0f0f0f98;
     background-color: #fff;
 }
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: white) {
 .msg {
     color: #000;
     background-color: #b0b0b0;
