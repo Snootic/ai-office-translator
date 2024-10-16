@@ -137,6 +137,16 @@ select{
   display: block;
 }
 
+#background-shadow {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none; 
+  background-color: var(--shadow);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -149,9 +159,10 @@ select{
     --fontColor: #fff;
     --backgroundColor2: rgb(26, 26, 26);
     --spinnerColor: #ff0000;
-    --spinnerBorderColor: rgba(255, 255, 255, 0.541);
+    --spinnerBorderColor: rgb(255, 255, 255);
     --inputColor: #2f2f2f;
     --inputFontColor: #fff;
+    --shadow: rgba(0, 0, 0, 0.5);
   }
 }
   
@@ -161,8 +172,9 @@ select{
     --fontColor: #333;
     --backgroundColor2: #fff;
     --spinnerColor: #ff0000;
-    --spinnerBorderColor: rgba(0, 0, 0, 0.1);
+    --spinnerBorderColor: rgb(255, 255, 255);
     --inputColor: #eeeeee;
     --inputFontColor: #333;
+    --shadow: rgba(0, 0, 0, 0.5);
   }
 }

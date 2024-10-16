@@ -38,6 +38,9 @@ async function handleTranslation(formData) {
     }
 
     const loadingSpinner = document.getElementById("loading-spinner");
+    const shadow = document.getElementById("background-shadow");
+
+    shadow.classList.add("show");
     loadingSpinner.classList.add("show");
 
     document.body.style.pointerEvents = "none";
@@ -73,6 +76,7 @@ async function handleTranslation(formData) {
                 message("Ocorreu um erro!");
             } finally {
                 loadingSpinner.classList.remove("show");
+                    shadow.classList.remove("show");
                     document.body.style.pointerEvents = "auto";
                     document.body.style.overflow = '';
             }
