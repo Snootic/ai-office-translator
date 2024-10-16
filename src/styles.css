@@ -41,19 +41,24 @@ main {
 button {
   background-color: #d83939;
   color: #fff;
-  border: none;
+  border: 1px solid transparent;
   padding: 0.8rem 1.2rem;
   margin-top: 1rem;
   border-radius: 8px;
   cursor: pointer;
+  transition: border-color 0.25s;
+  transition: transform 0.01s ease-in-out 0.01s;
 }
 
 button:hover {
-  background-color: #8a0000;
+  background-color: var(--buttonHoverColor);
+  transform: scale(1.2);
+  border-color: var(--buttonBorderColor);
 }
 
 button:active {
   background-color: #d83939;
+  border-color: #396cd8;
 }
 
 .glossary-div, .parameters, .file-input-div {
@@ -65,14 +70,19 @@ button:active {
 input[type="file"], input[type="text"], select {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--inputBorderColor);
   border-radius: 6px;
   width: 100%;
 }
 
 input, select, select option{
+  transition: transform 0.01s ease-in-out 0.05s;
   background-color: var(--inputColor);
   color: var(--inputFontColor);
+}
+
+input:hover, select:hover{
+  transform: scale(1.05);
 }
 
 select{
@@ -163,6 +173,9 @@ select{
     --inputColor: #2f2f2f;
     --inputFontColor: #fff;
     --shadow: rgba(0, 0, 0, 0.5);
+    --inputBorderColor: #d83939;
+    --buttonBorderColor: #ffffff;
+    --buttonHoverColor: #b10000;
   }
 }
   
@@ -176,5 +189,8 @@ select{
     --inputColor: #eeeeee;
     --inputFontColor: #333;
     --shadow: rgba(0, 0, 0, 0.5);
+    --inputBorderColor: #d83939;
+    --buttonBorderColor: #b0b0b0 ;
+    --buttonHoverColor: #ff1717;
   }
 }
