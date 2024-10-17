@@ -1,8 +1,9 @@
 name: 'publish'
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+        - 'release'
     
 jobs:
   publish-tauri:
@@ -66,7 +67,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__
+          tagName: v__VERSION__
           releaseName: 'AI TRANSLATOR v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: false
