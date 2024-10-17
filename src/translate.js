@@ -111,7 +111,14 @@ targetFileInput.addEventListener("click", async (event) => {
             const originalFile = document.getElementById("original-file-input").files[0];
             if (originalFile) {
                 const targetLanguage = document.getElementById("target-language").options[document.getElementById("target-language").selectedIndex].innerHTML;
-                targetFileInput.value = `${selected}/${targetLanguage} - ${originalFile.name}`;
+                
+                const originalFileName = originalFile.name;
+                const extensionIndex = originalFileName.lastIndexOf('.');
+
+                const fileNameWithoutExt = originalFileName.slice(0, extensionIndex);
+                const fileExtension = originalFileName.slice(extensionIndex);
+                
+                targetFileInput.value = `${selected}/${fileNameWithoutExt} - ${targetLanguage}${fileExtension}`;
             } else {
                 message("Nenhum arquivo original selecionado.");
             }
