@@ -20,6 +20,8 @@ class File:
         return tokens
     
     def load_document(self, file: Union[str, IO[bytes]] = None):
+        #TODO: add more file types
+        #I guess it supports doc and the varities of .pp**/.xl**, but needs to test it
         if isinstance(file, str):
             ext = os.path.splitext(file)[1].lower()
         else:
@@ -37,7 +39,7 @@ class File:
             raise ValueError("Tipo de arquivo não suportado. Por favor, insira um arquivo .docx, .xlsx ou .pptx.")
 
     def load_excel(self, file: str | IO[bytes ]= None):
-        pass
+        pass # too lazy to do this. Only when i need it
     
     def load_pptx(self, file: str | IO[bytes ]= None):
         try:
@@ -136,6 +138,9 @@ class File:
         
         # print(json.loads(result))
 
+        # The reason behind it returning the dict loaded from the json and not the json object itself
+        # is that in the rust side it is programmed to handle dict files
+        # was too lazy to fix that so i am returning the dict after parsing it to json
         return json.loads(result)
 
     def load_word(self, file: str | IO[bytes ]= None):

@@ -10,7 +10,9 @@ from pypdf import PdfReader, PdfWriter
 from sys import _getframe
 
 class Translate:
-    # All returns must be json parsable
+    # since the tauri side stores the file destination path
+    # and this module actually SAVE the file in the destination path
+    # no need to make json parseable returns, because we won't handle them here (for now)
     
     def __init__(self, api_key: str, model: str, **kwargs) -> None:
         self.API_KEY = api_key
@@ -32,6 +34,8 @@ class Translate:
     def _runs_are_equals(self, run1, run2, **kwargs) -> bool:
         caller = _getframe(1).f_code.co_name
         
+        #check the caller function because pypptx and pydocx have different ways
+        #to call the attributes for their objects
         if caller == "translate_word_preserve_format":
             font1 = run1
             font2 = run2
@@ -42,10 +46,15 @@ class Translate:
         if not self._attribute_are_equals(run1.font.size, run2.font.size):
             return False
         
+        #sometimes the font does not have a color attribute specified, so it will throw an exception
+        #if it cant find it. That's why there is this hasattr here
         elif (hasattr(run1.font.color, 'rgb') and hasattr(run2.font.color, 'rgb')):
             if run1.font.color.rgb != run2.font.color.rgb:
                     return False
-                
+        
+        # when a file is converted from pdf (eg. from adobe acrobat)
+        # it often uses a ton of different fonts for the text, even though it shouldnt
+        # so this is here to compare if the fonts are equal when NOT converted from pdf
         elif 'came_from_pdf' in kwargs:
             if kwargs['came_from_pdf'] == False:
                 if run1.font.name != run2.font.name:
@@ -70,7 +79,9 @@ class Translate:
                 continue
             if previous_run is not None and self._runs_are_equals(previous_run, run):
                 if previous_run in runs:
-                    id = runs.index(previous_run)
+                    #since it will join the runs, we need to store the current run ID
+                    #to insert the new run in the same position
+                    id = runs.index(previous_run) 
                     runs.remove(previous_run)
                     previous_run.text += run.text
                     runs.insert(id, previous_run)
@@ -91,6 +102,10 @@ class Translate:
         elif len(runs) > 1:
             for run in runs:
                 if run != runs[-1]:
+                    # needs this {end-run} statement to ensure that the final text
+                    # will have the same amount of runs that the original text has
+                    # in the prompt, tell the gpt to maintain this statement and to not translate it
+                    # otherwise it will result in an abnormal formatting.
                     text_to_translate += f"{run.text}"+"{end-run}"
                     continue
                 text_to_translate += f"{run.text}"
@@ -103,6 +118,9 @@ class Translate:
         return text_to_translate
     
     def translate_document(self, file: str, output_path: str, target_lang: str, source_lang: str = None, **kwargs):
+        #just a handler that redirects the original request to the correct method based on the file extension.
+        #useful when passing to the rust side. No need to write a function to fetch each type of file
+        #when adding new file types, just add an elif here and the respective function
         if isinstance(file, str):
             ext = os.path.splitext(file)[1].lower()
         else:
@@ -127,7 +145,7 @@ class Translate:
                 
                 runs = self._process_runs(paragraph)
 
-                paragraph.clear()
+                paragraph.clear() #clear the original text to append the new translated text
 
                 text_to_translate = self._manage_runs_text(runs)
                 
@@ -145,6 +163,8 @@ class Translate:
 
                 for id, run in enumerate(runs):
                     try:
+                        #sometimes even with the {end-run} it will somehow fail to provide
+                        #the same length of runs, so this try is here to prevent a crash or smt
                         runs_text[id]
                     except IndexError:
                         continue
@@ -188,6 +208,15 @@ class Translate:
                     cell.text = translated_text
 
         def translate_chart(shape):
+            #the commented code in this function is due it has been using
+            #openpyxl and pandas to manipulate the excel table from the chart
+            #and overwriting the blob for the new one
+            #although it works fine, when opening the presentation in porwerpoint
+            #it would not update the chart data automatically, you'd have to manually do it by going to edit data tab
+            #so i searched and found that the pptx librabry actually has a way to replace the chart data
+            #it is a little more complicated and im not sure if it works for all charts
+            #but it at least updates the chart data automatically :DDD (and probably is more optimized, dk how it works on the back)
+            
             blob_stream = BytesIO(shape.chart._workbook.xlsx_part.blob)
             # sheets = pd.ExcelFile(blob_stream).sheet_names
             df = pd.read_excel(blob_stream)
@@ -375,6 +404,7 @@ class Translate:
         doc.save(output_path)
 
     def translate_excel(self, spreadsheet_path: str, output_path: str, source_column:str, target_column:str, target_lang: str,  source_lang: str = None, glossary: deepl.GlossaryInfo = None, **kwargs):
+        #needs to redo it, make it more versatile and scalable
         df = pd.read_excel(spreadsheet_path)
         
         df[target_column] = df[source_column].apply(lambda x: self.translate_text(x, source_lang=source_lang, target_lang=target_lang, glossary=glossary, **kwargs))
@@ -403,6 +433,8 @@ class Translate:
             return text
 
     def gpt_translate_text(self, text: str, target_language:str, source_language:str = None, context: str | None = None):
+        #the prompt should not be too extensive because it uses tokens. So a more extensive prompt = more money spent
+        #be concise
         prompt = f"Translate to {target_language}, return original text if you can't. Keep the formatting, capitalization, punctuation, use the fluent vocabulary of a native." +" Don't translate {end-run}, don't remove it."
         
         if context:

@@ -57,5 +57,7 @@ class GPTAccount():
         return gpt_models
     
     def account_billing():
+        #not sure if openai provides a way to check the account billing from the api
+        #if not this function will never be made kek
         #TODO
         pass
