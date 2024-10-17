@@ -15,7 +15,7 @@
   },
   "productName": "AI-translator",
   "mainBinaryName": "AI-translator",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "identifier": "AI-Office-Translator",
   "plugins": {},
   "app": {
