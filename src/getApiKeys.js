@@ -9,8 +9,10 @@ async function initializeKeys(model) {
     }else{
         keys = await invoke('get_deep_keys');
     }
-    
-    apiKey = keys[0].key;
+
+    // for now just returning the first key found
+    // will still, in the future, make it handle multiple keys wisely
+    apiKey = keys[0].key; 
 }
 
 export { apiKey, keys, initializeKeys };

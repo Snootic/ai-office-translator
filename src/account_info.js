@@ -25,6 +25,8 @@ async function checkUsage() {
 
             quotaText.textContent = `${parsedResult.output.used_characters} caracteres usados de ${parsedResult.output.characters_limit}`
 
+            // there is a bug here that it still prints that the limit has reached even when its not
+            // not in the mood to solve this though :P. I don't use deepl, although it works (i guess)
             if (parsedResult.output.characters_limit_reached){
                 const limitText = document.getElementById("limit-reached")
 

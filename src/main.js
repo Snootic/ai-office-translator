@@ -33,6 +33,8 @@ async function get_models() {
     }
 }
 
+// the hide parameter is boolean. It will trigger the class attribute
+// "show" or remove it if necessary (only when the deepl model is selected)
 function deepl_params(hide){
     const usage = document.querySelector(".quota-info")
     const glossary_div = document.querySelector("#glossary-div")

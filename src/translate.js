@@ -1,14 +1,11 @@
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
 import { message } from "./message.js";
 const { invoke } = window.__TAURI__.core;
-console.log(window)
-console.log(window.__TAURI__)
-console.log(window.__TAURI_PLUGIN_DIALOG__)
 const { open } = window.__TAURI__.dialog;
-// const { appDir } = window.__TAURI__.Manager;
 
 await initializeKeys("deepl");
 
+//initializing all the objects we will use, maybe there is a easier way to do this
 const divConfirmar = document.querySelector("#confirm-submit");
 const formTraduzir = document.getElementById("file-form");
 const targetFileInput = document.getElementById("target-file-input");
@@ -37,6 +34,7 @@ async function handleTranslation(formData) {
         await initializeKeys("gpt");
     }
 
+    // i should've made a function for the loading spin, in a separated js file
     const loadingSpinner = document.getElementById("loading-spinner");
     const shadow = document.getElementById("background-shadow");
 
@@ -59,6 +57,8 @@ async function handleTranslation(formData) {
         let args = [formData.get("target-file-input"),formData.get("target-language"),formData.get("source-language")]
         let model = document.getElementById("model-selector").value
             try {
+                // funny that apparently, when calling a rust function their parameters must be stated in camelCase
+                // even if the original parameters in the rust side are snake_case
                 const result = await invoke("translate_document", {
                     apiKey: apiKey,
                     model: model,
@@ -103,6 +103,8 @@ cancelarTraducaoBotao.addEventListener("click", () => {
 targetFileInput.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
+        // when (if) make a config file, add defaultPath here (i guess is defaultPath, see on tauri docs)
+        // to make it less anoying everytime we save a file
         const selected = await open({
             directory: true,
         });

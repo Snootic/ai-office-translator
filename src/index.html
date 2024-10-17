@@ -20,12 +20,14 @@
       <p><strong>Traduza arquivos de maneira fácil e rápida utilizando IA.</strong></p>
     </section>
     <main>
+      <!-- This is the div on the left size, it contains the input fields for the user-->
       <form class="translator-form" id="file-form">
         <div class="model-div">
           <label for="model-selector"><strong>Modelo</strong></label>
           <select name="model-selector" id="model-selector"></select>
         </div>
 
+        <!--ONLY AVAILABLE WHEN DEEPL MODEL IS SELECTED-->
         <div class="quota-info">
           <h4>Uso de cota</h4>
           <p id="quota-usage"></p>
@@ -39,6 +41,7 @@
           <select name="target-language" id="target-language"></select>
         </div>
 
+        <!--ONLY AVAILABLE WHEN DEEPL MODEL IS SELECTED-->
         <div class="glossary-div" id="glossary-div">
           <label for="glossary-select"><strong>Glossário (opcional)</strong></label>
           <select id="glossary-select" name="glossary-select">
@@ -57,8 +60,10 @@
         <button id="translate-button" type="submit"><strong>Traduzir</strong></button>
       </form>
 
+      <!--This div will print all the file info that the python returns. It remains empty when no file is selected-->
       <div id="document-info-div" class="document-info"></div>
 
+      <!--Has basically the same fields that the translator-form have, but they're readonly. Only for the user to confirm their choices-->
       <div id="confirm-submit" class="confirm-submit">
         <h2>Confirmar Parâmetros de Tradução</h2>
         <div class="input-div">
