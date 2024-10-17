@@ -371,7 +371,7 @@ class Translate:
 
                 for id, run in enumerate(runs):
                     try:
-                        print(runs_text[id])
+                        runs_text[id]
                     except IndexError:
                         continue
                     word_bank[run.text] = runs_text[id]
@@ -387,6 +387,7 @@ class Translate:
                     new_run.font.size = run.font.size
                     new_run.font.color.rgb = run.font.color.rgb
                     new_run.font.name = run.font.name
+                    new_run.text = run.text
 
         def translate_tables():
             for table in doc.tables:
