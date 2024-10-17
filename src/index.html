@@ -1,117 +1,104 @@
 <!doctype html>
 <html lang="pt-br">
-
-<head>
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="message.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Office Translator</title>
-  <script type="module" src="/main.js" defer></script>
-  <script type="module" src="/account_info.js" defer></script>
-  <script type="module" src="/get_languages.js" defer></script>
-  <script type="module" src="/translate.js" defer></script>
-  <script type="module" src="/document.js" defer></script>
-</head>
-
-<body>
-  <header>
-    <h1>Tradutor de arquivos</h1>
-  </header>
-  <main>
-    <p>Traduza arquivos em poucos cliques com DeepL e ChatGPT</p>
-
-    <div class="model-div">
-      <label for="model-selector">Modelo</label>
-      <select class="select" name="model-selector" id="model-selector"></select>
-    </div>
-
-    <div class="quota-info">
-      <h4>Uso de cota</h4>
-      <p id="quota-usage"></p>
-      <p id="limit-reached"></p>
-    </div>
-
-    <div id="translator-div">
-      <div id="translator-form-div">
-        <form class="column" id="file-form">
-          <div class="input-button-container">
-
-            <div class="required-parameters">
-              <label for="source-language">Idioma original</label>
-              <select class="select" name="source-language" id="source-language"></select>
-              <label for="target-language">Idioma alvo</label>
-              <select class="select" name="target-language" id="target-language"></select>
-            </div>
-
-            <div class="input-div" id="glossary-div">
-              <label class="label-input" for="glossary-select">Glossário (opcional): </label>
-              <div class="glossary-div">
-                <select class="select" id="glossary-select" name="glossary-select">
-                  <option></option>
-                </select>
-                <button id="criar-glossario" type="button">Criar um glossário</button>
-              </div>
-            </div>
-
-            <div class="input-div">
-              <label class="label-input" for="original-file-input">Arquivo original: </label>
-              <input class="file-input" id="original-file-input" name="original-file-input" type="file" />
-            </div>
-
-            <div class="input-div">
-              <label class="label-input" for="target-file-input">Caminho do arquivo traduzido: </label>
-              <input class="file-input" id="target-file-input" name="target-file-input" type="text" />
-            </div>
-            <button id="translate-button" type="submit">Traduzir</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="document-info-div">
-      </div>
-    </div>
-
-    <div class="confirm-submit" id="confirm-submit">
-      <h2>Confirmar parâmetros de tradução</h1>
-        <div class="input-div">
-          <label class="label-input" for="source_language_confirm">Idioma de origem</label>
-          <input class="file-input" type="text" name="source_language_confirm" id="source_language_confirm" readonly>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="message.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Office Translator</title>
+    <script type="module" src="/main.js" defer></script>
+    <script type="module" src="/account_info.js" defer></script>
+    <script type="module" src="/get_languages.js" defer></script>
+    <script type="module" src="/translate.js" defer></script>
+    <script type="module" src="/document.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Tradutor de Arquivos</h1>
+    </header>
+    <section class="intro">
+      <p><strong>Traduza arquivos de maneira fácil e rápida utilizando IA.</strong></p>
+    </section>
+    <main>
+      <!-- This is the div on the left size, it contains the input fields for the user-->
+      <form class="translator-form" id="file-form">
+        <div class="model-div">
+          <label for="model-selector"><strong>Modelo</strong></label>
+          <select name="model-selector" id="model-selector"></select>
         </div>
 
-        <div class="input-div">
-          <label class="label-input" for="target_language_confirm">Idioma alvo</label>
-          <input class="file-input" type="text" name="target_language_confirm" id="target_language_confirm" readonly>
+        <!--ONLY AVAILABLE WHEN DEEPL MODEL IS SELECTED-->
+        <div class="quota-info">
+          <h4>Uso de cota</h4>
+          <p id="quota-usage"></p>
+          <p id="limit-reached"></p>
         </div>
 
-        <div class="input-div">
-          <label class="label-input" for="glossary_confirm">Glossário</label>
-          <input class="file-input" type="text" name="glossary_confirm" id="glossary_confirm" readonly>
+        <div class="parameters">
+          <label for="source-language"><strong>Idioma Original</strong></label>
+          <select name="source-language" id="source-language"></select>
+          <label for="target-language"><strong>Idioma Alvo</strong></label>
+          <select name="target-language" id="target-language"></select>
         </div>
 
-        <div class="input-div">
-          <label class="label-input" for="model_confirm">Modelo</label>
-          <input class="file-input" type="text" name="model_confirm" id="model_confirm" readonly>
+        <!--ONLY AVAILABLE WHEN DEEPL MODEL IS SELECTED-->
+        <div class="glossary-div" id="glossary-div">
+          <label for="glossary-select"><strong>Glossário (opcional)</strong></label>
+          <select id="glossary-select" name="glossary-select">
+            <option></option>
+          </select>
+          <button id="criar-glossario" type="button"><strong>Criar um glossário</strong></button>
         </div>
 
-        <div class="input-div">
-          <label class="label-input" for="original_file_confirm">Arquivo original</label>
-          <input class="file-input" type="text" name="original_file_confirm" id="original_file_confirm" readonly>
+        <div class="file-input-div">
+          <label for="original-file-input"><strong>Arquivo Original</strong></label>
+          <input id="original-file-input" name="original-file-input" type="file" />
+          <label for="target-file-input"><strong>Destino do Arquivo Traduzido</strong></label>
+          <input id="target-file-input" name="target-file-input" type="text" />
         </div>
 
-        <div class="input-div">
-          <label class="label-input" for="target_file_confirm">Arquivo destino</label>
-          <input class="file-input" type="text" name="target_file_confirm" id="target_file_confirm" readonly>
-        </div>
+        <button id="translate-button" type="submit"><strong>Traduzir</strong></button>
+      </form>
 
+      <!--This div will print all the file info that the python returns. It remains empty when no file is selected-->
+      <div id="document-info-div" class="document-info"></div>
+
+      <!--Has basically the same fields that the translator-form have, but they're readonly. Only for the user to confirm their choices-->
+      <div id="confirm-submit" class="confirm-submit">
+        <h2>Confirmar Parâmetros de Tradução</h2>
+        <div class="input-div">
+          <label for="source_language_confirm">Idioma de Origem</label>
+          <input type="text" id="source_language_confirm" readonly />
+        </div>
+        <div class="input-div">
+          <label for="target_language_confirm">Idioma Alvo</label>
+          <input type="text" id="target_language_confirm" readonly />
+        </div>
+        <div class="input-div">
+          <label for="glossary_confirm">Glossário</label>
+          <input type="text" id="glossary_confirm" readonly />
+        </div>
+        <div class="input-div">
+          <label for="model_confirm">Modelo</label>
+          <input type="text" id="model_confirm" readonly />
+        </div>
+        <div class="input-div">
+          <label for="original_file_confirm">Arquivo Original</label>
+          <input type="text" id="original_file_confirm" readonly />
+        </div>
+        <div class="input-div">
+          <label for="target_file_confirm">Arquivo Destino</label>
+          <input type="text" id="target_file_confirm" readonly />
+        </div>
         <div class="confirm-button-container">
           <button id="cancel-translation">Cancelar</button>
           <button id="confirm-translation">Confirmar</button>
         </div>
-    </div>
+      </div>
 
-    <div id="msg" class="msg"></div>
-  </main>
-</body>
-
+      <div id="msg" class="msg"></div>
+      <div id="background-shadow"></div>
+      <div id="loading-spinner" class="spinner"></div>
+    </main>
+  </body>
 </html>

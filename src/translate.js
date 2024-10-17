@@ -1,11 +1,11 @@
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
 import { message } from "./message.js";
-const { invoke } = window.__TAURI__.tauri;
+const { invoke } = window.__TAURI__.core;
 const { open } = window.__TAURI__.dialog;
-const { appDir } = window.__TAURI__.path;
 
 await initializeKeys("deepl");
 
+//initializing all the objects we will use, maybe there is a easier way to do this
 const divConfirmar = document.querySelector("#confirm-submit");
 const formTraduzir = document.getElementById("file-form");
 const targetFileInput = document.getElementById("target-file-input");
@@ -33,6 +33,17 @@ async function handleTranslation(formData) {
     if (document.getElementById("model-selector").value.includes("gpt")){
         await initializeKeys("gpt");
     }
+
+    // i should've made a function for the loading spin, in a separated js file
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const shadow = document.getElementById("background-shadow");
+
+    shadow.classList.add("show");
+    loadingSpinner.classList.add("show");
+
+    document.body.style.pointerEvents = "none";
+    document.body.style.overflow = 'hidden';              
+
     const originalFile = formData.get("original-file-input");
     if (!originalFile) {
         console.error("Nenhum arquivo foi selecionado.");
@@ -45,23 +56,30 @@ async function handleTranslation(formData) {
         const fileData = new Uint8Array(reader.result);
         let args = [formData.get("target-file-input"),formData.get("target-language"),formData.get("source-language")]
         let model = document.getElementById("model-selector").value
-        try {
-            const result = await invoke("translate_document", {
-                apiKey: apiKey,
-                model: model,
-                fileData: Array.from(fileData),
-                fileName: originalFile.name,
-                args: args,
-                kwargs: null
-            });
+            try {
+                // funny that apparently, when calling a rust function their parameters must be stated in camelCase
+                // even if the original parameters in the rust side are snake_case
+                const result = await invoke("translate_document", {
+                    apiKey: apiKey,
+                    model: model,
+                    fileData: Array.from(fileData),
+                    fileName: originalFile.name,
+                    args: args,
+                    kwargs: null
+                });
 
-            const parsedResult = JSON.parse(result);
-            console.log(parsedResult.output);
-            message(parsedResult.success ? "Arquivo traduzido com sucesso!" : "Falha na tradução :(");
-        } catch (error) {
-            console.error("Erro:", error);
-            message("Ocorreu um erro!");
-        }
+                const parsedResult = JSON.parse(result);
+                console.log(parsedResult.output);
+                message(parsedResult.success ? "Arquivo traduzido com sucesso!" : "Falha na tradução :(");
+            } catch (error) {
+                console.error("Erro:", error);
+                message("Ocorreu um erro!");
+            } finally {
+                loadingSpinner.classList.remove("show");
+                    shadow.classList.remove("show");
+                    document.body.style.pointerEvents = "auto";
+                    document.body.style.overflow = '';
+            }
     };
 }
 
@@ -85,16 +103,24 @@ cancelarTraducaoBotao.addEventListener("click", () => {
 targetFileInput.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
+        // when (if) make a config file, add defaultPath here (i guess is defaultPath, see on tauri docs)
+        // to make it less anoying everytime we save a file
         const selected = await open({
             directory: true,
-            defaultPath: await appDir(),
         });
 
         if (selected) {
             const originalFile = document.getElementById("original-file-input").files[0];
             if (originalFile) {
                 const targetLanguage = document.getElementById("target-language").options[document.getElementById("target-language").selectedIndex].innerHTML;
-                targetFileInput.value = `${selected}/${targetLanguage} - ${originalFile.name}`;
+                
+                const originalFileName = originalFile.name;
+                const extensionIndex = originalFileName.lastIndexOf('.');
+
+                const fileNameWithoutExt = originalFileName.slice(0, extensionIndex);
+                const fileExtension = originalFileName.slice(extensionIndex);
+                
+                targetFileInput.value = `${selected}/${fileNameWithoutExt} - ${targetLanguage}${fileExtension}`;
             } else {
                 message("Nenhum arquivo original selecionado.");
             }
@@ -103,3 +129,5 @@ targetFileInput.addEventListener("click", async (event) => {
         console.error("Erro ao selecionar diretório:", error);
     }
 });
+
+

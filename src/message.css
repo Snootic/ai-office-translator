@@ -1,19 +1,13 @@
 .msg {
     position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #b0b0b0;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
     visibility: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 250px;
-    background-color: #0f0f0f98;
-    color: rgb(255, 255, 255);
-    text-align: center;
-    border-radius: 20px;
-    padding: 20px;
-    z-index: 1;
-    bottom: 5%;
-    font-size: 1rem;
-    align-self: center;
   }
     
   .showMessage {
@@ -39,15 +33,15 @@
 
 @media (prefers-color-scheme: dark) {
 .msg {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+    color: #0f0f0f98;
+    background-color: #fff;
 }
 }
 
-@media (prefers-color-scheme: white) {
+@media (prefers-color-scheme: light) {
 .msg {
-    color: #0f0f0f98;
-    background-color: #ffffff;
+    color: #000;
+    background-color: #b0b0b0;
 }
 }
 
