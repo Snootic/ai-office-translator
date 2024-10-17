@@ -170,21 +170,19 @@ class Translate:
                         continue
 
                     word_bank[run.text] = runs_text[id]
-
-                    run_copy = run
-
-                    run_copy.text = runs_text[id]
+                    
+                    run.text = runs_text[id]
 
                     new_run = paragraph.add_run()
 
-                    new_run.font.bold = run_copy.font.bold
-                    new_run.font.italic = run_copy.font.italic
-                    new_run.font.underline = run_copy.font.underline
-                    new_run.font.size = run_copy.font.size
+                    new_run.font.bold = run.font.bold
+                    new_run.font.italic = run.font.italic
+                    new_run.font.underline = run.font.underline
+                    new_run.font.size = run.font.size
                     if hasattr(run.font.color, 'rgb'):
-                        new_run.font.color.rgb = run_copy.font.color.rgb
-                    new_run.font.name = run_copy.font.name
-                    new_run.text = run_copy.text
+                        new_run.font.color.rgb = run.font.color.rgb
+                    new_run.font.name = run.font.name
+                    new_run.text = run.text
 
         def translate_table(shape):
             table = shape.table
