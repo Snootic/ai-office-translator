@@ -49,7 +49,10 @@ class GPTAccount():
         
         models = []
         for model in gpt_models:
-            if model.id.__contains__("gpt-4o"):
+            # filtering only gpt-4o and gpt-4o-mini because theyre more than sufficient
+            # and to not confuse end user with a ton of models
+            # when gpt-4o become deprecated, replace this with the most cost-benefit model at the time
+            if model.id == "gpt-4o" or model.id == "gpt-4o-mini":
                 models.append(model.id)
 
         gpt_models = {"gpt_models": models}
