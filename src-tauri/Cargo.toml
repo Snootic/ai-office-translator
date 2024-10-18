@@ -24,3 +24,6 @@ tauri-plugin-dialog = "2"
 custom-protocol = ["tauri/custom-protocol"]
 auto-initialize = ["pyo3/auto-initialize"]
 default = ["auto-initialize"]
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2"
