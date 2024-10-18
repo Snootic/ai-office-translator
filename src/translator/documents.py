@@ -74,7 +74,7 @@ class File:
                     table_data = []
                     for row in table.rows:
                         for cell in row.cells:
-                            if isinstance(cell, (int,float)) or not cell.text.strip() or cell.isdigit():
+                            if isinstance(cell, (int,float)) or not cell.text.strip():
                                     continue
                             final_text += cell.text.rstrip()
                             pretokens = self.tokenize(cell.text.rstrip())
