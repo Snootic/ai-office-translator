@@ -1,6 +1,6 @@
 [package]
-name = "AI_translator"
-version = "0.3.2"
+name = "ai_translator"
+version = "0.3.3"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
