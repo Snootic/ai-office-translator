@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "ai_translator"
-version = "0.3.3"
+version = "0.3.3-2"
 dependencies = [
  "pyo3",
  "serde",
