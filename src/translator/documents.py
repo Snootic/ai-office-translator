@@ -153,13 +153,35 @@ class File:
 
         paragraphs_text = ""
         tokens = []
-        for paragraph in file.paragraphs:
-            text = paragraph.text.rstrip()
-            text = text.lstrip()
-            paragraphs_text += " "+text
-            pretokens = self.tokenize(paragraph.text)
-            for token in pretokens:
-                tokens.append(token)
+
+        def count_paragraphs(paragraphs_text, file):
+            for paragraph in file.paragraphs:
+                if paragraph.text.strip().isdigit():
+                    continue
+                text = paragraph.text.rstrip()
+                text = text.lstrip()
+                paragraphs_text += " "+text
+                pretokens = self.tokenize(paragraph.text)
+                for token in pretokens:
+                    tokens.append(token)
+
+            return paragraphs_text
+        
+        def count_tables(paragraphs_text):
+            for table in file.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        paragraphs_text = count_paragraphs(paragraphs_text, cell)
+
+            return paragraphs_text
+        
+        try:     
+            paragraphs_text = count_paragraphs(paragraphs_text,file)
+
+            paragraphs_text = count_tables(paragraphs_text)
+
+        except Exception as e:
+            print(e)
 
         words = paragraphs_text.split(" ")
 
