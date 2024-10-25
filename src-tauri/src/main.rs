@@ -58,6 +58,8 @@ fn main() {
             
             lib::initialize_modules(&app);
 
+            lib::run_updater(&app);
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
