@@ -15,7 +15,8 @@
     "createUpdaterArtifacts": true,
     "resources": {
       "../.venv": "src/.venv",
-      "../src/translator": "src/translator"
+      "../src/translator": "src/translator",
+      "../src/config_files": "src/config"
     }
   },
   "productName": "AI-translator",

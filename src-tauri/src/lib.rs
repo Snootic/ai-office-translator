@@ -8,6 +8,8 @@ static mut DOCUMENTS: Option<String> = None;
 static mut UTILS: Option<String> = None;
 static mut TRANSLATE: Option<String> = None;
 static mut GLOSSARY: Option<String> = None;
+static mut GPT_KEYS: Option<String> = None;
+static mut DEEPL_KEYS: Option<String> = None;
 
 pub fn initialize_modules(app: &App) {
     INIT.call_once(|| {
@@ -30,6 +32,16 @@ pub fn initialize_modules(app: &App) {
         unsafe {
             GLOSSARY = Some(binding.to_str().unwrap().to_string());
         }
+
+        let binding = app.path().resolve("src/config/gpt_keys.json", BaseDirectory::Resource).unwrap();
+        unsafe {
+            GPT_KEYS = Some(binding.to_str().unwrap().to_string());
+        }
+
+        let binding = app.path().resolve("src/config/deepl_keys.json", BaseDirectory::Resource).unwrap();
+        unsafe {
+            DEEPL_KEYS = Some(binding.to_str().unwrap().to_string());
+        }
     });
 }
 
@@ -47,4 +59,12 @@ pub fn get_translate() -> Option<&'static str> {
 
 pub fn get_glossary() -> Option<&'static str> {
     unsafe { GLOSSARY.as_deref() }
+}
+
+pub fn get_gpt_keys_path() -> Option<&'static str> {
+    unsafe { GPT_KEYS.as_deref() }
+}
+
+pub fn get_deepl_keys_path() -> Option<&'static str> {
+    unsafe { DEEPL_KEYS.as_deref() }
 }
