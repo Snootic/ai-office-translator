@@ -2,13 +2,15 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::BufReader;
 
+use crate::lib;
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Item {
     pub key: String,
 }
 
 pub fn get_deepl_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open("../src/config_files/deepl_keys.json")?;
+    let file = File::open(lib::get_deepl_keys_path().unwrap_or(""))?;
     let reader = BufReader::new(file);
 
     let items: Vec<Item> = serde_json::from_reader(reader)?;
@@ -16,9 +18,8 @@ pub fn get_deepl_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
     Ok(items)
 }
 
-
 pub fn get_gpt_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open("../src/config_files/gpt_keys.json")?;
+    let file = File::open(lib::get_gpt_keys_path().unwrap_or(""))?;
     let reader = BufReader::new(file);
 
     let items: Vec<Item> = serde_json::from_reader(reader)?;

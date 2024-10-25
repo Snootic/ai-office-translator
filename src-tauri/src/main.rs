@@ -7,10 +7,14 @@ mod glossary;
 mod process_call;
 mod translate;
 mod utils;
+mod lib;
+
+use std::env;
 
 use documents::documents_handler;
 use get_api_keys::{get_deepl_keys, get_gpt_keys, Item};
 use glossary::glossary_handler;
+use tauri::{path::BaseDirectory, Manager};
 use translate::translate_handler;
 use utils::utils_handler;
 
@@ -33,6 +37,29 @@ fn get_deep_keys() -> Result<Vec<Item>, String> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::default().build())
+        .setup(|app| {
+            let binding = app.path().resolve("src/translator/documents.py", BaseDirectory::Resource)?;
+            let doc = binding.to_str().unwrap();
+
+            let binding = app.path().resolve("src/.venv", BaseDirectory::Resource)?;
+            let venv_path = binding.to_str().unwrap();
+
+            let binding = app.path().resolve("src/.venv/bin", BaseDirectory::Resource)?;
+            let bin_path = binding.to_str().unwrap();
+
+            let cur_path = env::var("PATH").unwrap();
+
+            let new_path = format!("{}:{}:{}", bin_path, venv_path, cur_path);
+
+            env::set_var("PATH", new_path);
+            
+            env::remove_var( "PYTHONHOME");
+            
+            lib::initialize_modules(&app);
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             documents_handler::load_document,
             glossary_handler::get_glossaries,
@@ -46,4 +73,5 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
 }

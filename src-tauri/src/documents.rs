@@ -6,22 +6,19 @@ pub mod documents_handler {
     use std::io::Write;
     use std::path::PathBuf;
 
-    use crate::process_call;
+    use crate::{lib, process_call};
     use process_call::handle_python_call;
 
     pub fn copy_file(file_data: Vec<u8>, file_name: &str) -> Result<String, String> {
         let file_relative_path = format!(".{}", file_name);
-    
-        let mut file = File::create(&file_relative_path)
-            .map_err(|e| e.to_string())?;
-    
-        file.write_all(&file_data)
-            .map_err(|e| e.to_string())?;
+
+        let mut file = File::create(&file_relative_path).map_err(|e| e.to_string())?;
+
+        file.write_all(&file_data).map_err(|e| e.to_string())?;
 
         let file_path = PathBuf::from(&file_relative_path);
-        let file_abs_path = std::fs::canonicalize(file_path)
-            .map_err(|e| e.to_string())?;
-        
+        let file_abs_path = std::fs::canonicalize(file_path).map_err(|e| e.to_string())?;
+
         Ok(file_abs_path.display().to_string())
     }
 
@@ -34,17 +31,19 @@ pub mod documents_handler {
                 return Err(e);
             }
         };
-        
+
         let args: Vec<&str> = vec![file_absolute_path.as_str()];
 
         handle_python_call(
-            "../src/translator/documents.py", 
-            "documents", 
-            "File", 
-            None, 
-            "load_document", 
-            Some(args), 
-            None
-        ).map_err(|e| e.to_string())
+            lib::get_documents().unwrap_or(""),
+            "documents",
+            "File",
+            None,
+            "load_document",
+            Some(args),
+            None,
+        )
+        .map_err(|e| e.to_string())
+        
     }
 }
