@@ -6,3 +6,4 @@ python-pptx
 openai
 tiktoken
 maturin
+pypdf
