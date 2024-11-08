@@ -1,5 +1,5 @@
 pub mod translate_handler {
-    use crate::{documents::documents_handler::copy_file, lib, process_call};
+    use crate::{documents::documents_handler::copy_file, ai_translator, process_call};
     use process_call::handle_python_call;
 
     #[tauri::command]
@@ -17,7 +17,7 @@ pub mod translate_handler {
         args.insert(0, &file_abs_path);
 
         handle_python_call(
-            lib::get_translate().unwrap_or(""),
+            ai_translator::get_translate().unwrap_or(""),
             "translate",
             "Translate",
             Some(vec![api_key, model]),

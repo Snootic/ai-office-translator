@@ -1,11 +1,11 @@
 pub mod utils_handler {
-    use crate::{lib, process_call};
+    use crate::{ai_translator, process_call};
     use process_call::handle_python_call;
 
     #[tauri::command]
     pub async fn get_gpt_models(api_key: &str) -> Result<String, String> {
         handle_python_call(
-            lib::get_utils().unwrap_or(""),
+            ai_translator::get_utils().unwrap_or(""),
             "utils",
             "GPTAccount",
             Some(vec![api_key]),
@@ -19,7 +19,7 @@ pub mod utils_handler {
     #[tauri::command]
     pub async fn get_source_languages(api_key: &str) -> Result<String, String> {
         handle_python_call(
-            lib::get_utils().unwrap_or(""),
+            ai_translator::get_utils().unwrap_or(""),
             "utils",
             "DeeplAccount",
             Some(vec![api_key]),
@@ -33,7 +33,7 @@ pub mod utils_handler {
     #[tauri::command]
     pub async fn get_target_languages(api_key: &str) -> Result<String, String> {
         handle_python_call(
-            lib::get_utils().unwrap_or(""),
+            ai_translator::get_utils().unwrap_or(""),
             "utils",
             "DeeplAccount",
             Some(vec![api_key]),
@@ -47,7 +47,7 @@ pub mod utils_handler {
     #[tauri::command]
     pub async fn check_usage(api_key: &str) -> Result<String, String> {
         handle_python_call(
-            lib::get_utils().unwrap_or(""),
+            ai_translator::get_utils().unwrap_or(""),
             "utils",
             "DeeplAccount",
             Some(vec![api_key]),

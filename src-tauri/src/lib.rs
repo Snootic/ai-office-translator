@@ -68,3 +68,38 @@ pub fn get_gpt_keys_path() -> Option<&'static str> {
 pub fn get_deepl_keys_path() -> Option<&'static str> {
     unsafe { DEEPL_KEYS.as_deref() }
 }
+
+pub fn run_updater(app: &App) {
+    let handle = app.handle().clone();
+    tauri::async_runtime::spawn(async move {
+        println!("running");
+        let _ = update(handle).await;
+    });
+}
+async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
+    println!("Current app version{}", app.package_info().version.to_string());
+    println!("checking for updates");
+    if let Some(update) = app.updater()?.check().await? {
+        let mut downloaded = 0;
+
+        update
+            .download_and_install(
+                |chunk_length, content_length| {
+                    downloaded += chunk_length;
+                    println!("downloaded {downloaded} from {content_length:?}");
+                },
+                || {
+                    println!("download finished");
+                },
+            )
+            .await?;
+
+        println!("update installed");
+        app.restart();
+    }
+    else {
+        println!("no update available");
+    }
+
+    Ok(())
+}

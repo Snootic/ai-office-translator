@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::BufReader;
 
-use crate::lib;
+use crate::ai_translator;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Item {
@@ -10,7 +10,7 @@ pub struct Item {
 }
 
 pub fn get_deepl_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open(lib::get_deepl_keys_path().unwrap_or(""))?;
+    let file = File::open(ai_translator::get_deepl_keys_path().unwrap_or(""))?;
     let reader = BufReader::new(file);
 
     let items: Vec<Item> = serde_json::from_reader(reader)?;
@@ -19,7 +19,7 @@ pub fn get_deepl_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
 }
 
 pub fn get_gpt_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open(lib::get_gpt_keys_path().unwrap_or(""))?;
+    let file = File::open(ai_translator::get_gpt_keys_path().unwrap_or(""))?;
     let reader = BufReader::new(file);
 
     let items: Vec<Item> = serde_json::from_reader(reader)?;
