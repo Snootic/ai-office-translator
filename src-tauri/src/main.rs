@@ -39,22 +39,6 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .setup(|app| {
-            let binding = app.path().resolve("src/translator/documents.py", BaseDirectory::Resource)?;
-            let doc = binding.to_str().unwrap();
-
-            let binding = app.path().resolve("src/.venv", BaseDirectory::Resource)?;
-            let venv_path = binding.to_str().unwrap();
-
-            let binding = app.path().resolve("src/.venv/bin", BaseDirectory::Resource)?;
-            let bin_path = binding.to_str().unwrap();
-
-            let cur_path = env::var("PATH").unwrap();
-
-            let new_path = format!("{}:{}:{}", bin_path, venv_path, cur_path);
-
-            env::set_var("PATH", new_path);
-            
-            env::remove_var( "PYTHONHOME");
             
             lib::initialize_modules(&app);
 

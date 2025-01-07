@@ -11,11 +11,19 @@ pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Opti
     let file_name = format!("{}.py",module);
     let code = fs::read_to_string(file_path).expect("Python file not found");
     let module = module.to_string();
+
+    let binding= std::env::current_exe().unwrap();
+    let raw_path = binding.parent().unwrap();
+    let libs = raw_path.join("Lib");
     
     Python::with_gil(|py| {
         let code_cstr = CString::new(code).unwrap();
         let file_name_cstr = CString::new(file_name).unwrap();
         let module_cstr = CString::new(module).unwrap();
+
+        let sys = py.import("sys").unwrap();
+        let path = sys.getattr("path")?;
+        path.call_method1("append", (libs,))?;
 
         let py_module = PyModule::from_code(py, &code_cstr, &file_name_cstr, &module_cstr)?;
 
