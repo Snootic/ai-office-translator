@@ -12,18 +12,10 @@ pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Opti
     let code = fs::read_to_string(file_path).expect("Python file not found");
     let module = module.to_string();
 
-    let binding= std::env::current_exe().unwrap();
-    let raw_path = binding.parent().unwrap();
-    let libs = raw_path.join("Lib");
-    
     Python::with_gil(|py| {
         let code_cstr = CString::new(code).unwrap();
         let file_name_cstr = CString::new(file_name).unwrap();
         let module_cstr = CString::new(module).unwrap();
-
-        let sys = py.import("sys").unwrap();
-        let path = sys.getattr("path")?;
-        path.call_method1("append", (libs,))?;
 
         let py_module = PyModule::from_code(py, &code_cstr, &file_name_cstr, &module_cstr)?;
 
@@ -90,7 +82,6 @@ fn convert_to_json(py_obj: pyo3::Bound<'_, pyo3::PyAny, >) -> PyResult<Value> {
     }
 }
 
-
 pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> Result<String, String> {
     match call_python(file_path, module, object, object_args, method, args, kwargs) {
         Ok(output) => {
@@ -108,4 +99,17 @@ pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_ar
             Err(result.to_string())
         }
     }
+}
+
+pub fn set_sys_path() -> PyResult<()> {
+    let binding = std::env::current_exe().unwrap();
+    let raw_path = binding.parent().unwrap();
+    let libs = raw_path.join("Lib");
+    Python::with_gil(|py| {
+        let sys = py.import("sys")?;
+        let path = sys.getattr("path")?;
+        path.call_method1("append", (libs,))?;
+        
+        Ok(())
+    })
 }
