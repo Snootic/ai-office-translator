@@ -1,4 +1,5 @@
 use std::fs;
+use std::ffi::CString;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
@@ -9,17 +10,21 @@ pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Opti
 
     let file_name = format!("{}.py",module);
     let code = fs::read_to_string(file_path).expect("Python file not found");
-    
-    Python::with_gil(|py| {
+    let module = module.to_string();
 
-        let py_module = PyModule::from_code_bound(py, &code, &file_name, module)?;
+    Python::with_gil(|py| {
+        let code_cstr = CString::new(code).unwrap();
+        let file_name_cstr = CString::new(file_name).unwrap();
+        let module_cstr = CString::new(module).unwrap();
+
+        let py_module = PyModule::from_code(py, &code_cstr, &file_name_cstr, &module_cstr)?;
 
         let py_object = py_module.getattr(class)?;
 
         let py_class: Bound<'_, PyAny>;
 
         if let Some(object_args) = object_args{
-            let method_args = PyTuple::new_bound(py, object_args);
+            let method_args = PyTuple::new(py, object_args).unwrap();
             py_class = py_object.call1(method_args)?;
         }else{
             py_class = py_object.call0()?;
@@ -30,19 +35,19 @@ pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Opti
                 py_class.call_method0(method)?
             }
             (Some(arg_list), None) => {
-                let method_args = PyTuple::new_bound(py, arg_list);
+                let method_args = PyTuple::new(py, arg_list).unwrap();
                 py_class.call_method1(method, method_args)?
             }
             (Some(arg_list), Some(kwarg_list)) => {
-                let method_args = PyTuple::new_bound(py, arg_list);
-                let method_kwargs = PyDict::new_bound(py);
+                let method_args = PyTuple::new(py, arg_list).unwrap();
+                let method_kwargs = PyDict::new(py);
                 for (key, value) in kwarg_list {
                     method_kwargs.set_item(key, value)?;
                 }
                 py_class.call_method(method, method_args, Some(&method_kwargs))?
             }
             (None, Some(kwarg_list)) => {
-                let method_kwargs = PyDict::new_bound(py);
+                let method_kwargs = PyDict::new(py);
                 for (key, value) in kwarg_list {
                     method_kwargs.set_item(key, value)?;
                 }
@@ -77,7 +82,6 @@ fn convert_to_json(py_obj: pyo3::Bound<'_, pyo3::PyAny, >) -> PyResult<Value> {
     }
 }
 
-
 pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> Result<String, String> {
     match call_python(file_path, module, object, object_args, method, args, kwargs) {
         Ok(output) => {
@@ -95,4 +99,17 @@ pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_ar
             Err(result.to_string())
         }
     }
+}
+
+pub fn set_sys_path() -> PyResult<()> {
+    let binding = std::env::current_exe().unwrap();
+    let raw_path = binding.parent().unwrap();
+    let libs = raw_path.join("Lib");
+    Python::with_gil(|py| {
+        let sys = py.import("sys")?;
+        let path = sys.getattr("path")?;
+        path.call_method1("append", (libs,))?;
+        
+        Ok(())
+    })
 }

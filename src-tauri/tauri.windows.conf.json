@@ -1,0 +1,16 @@
+{
+  "bundle": {
+    "resources": {
+      "../.venv/Scripts": ".",
+      "../.venv/Lib/site-packages": "Lib",
+      "../Python": "."
+    }
+  },
+  "plugins": {
+    "updater": {
+      "windows": {
+        "installMode": "passive"
+      } 
+    }
+  }
+}
