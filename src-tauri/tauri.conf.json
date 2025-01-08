@@ -14,7 +14,6 @@
     ],
     "createUpdaterArtifacts": true,
     "resources": {
-      "../.venv": "src/.venv",
       "../src/translator": "src/translator",
       "../src/config_files": "src/config"
     }
@@ -27,11 +26,8 @@
     "updater": {
       "pubkey":"dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc1NjU5RUY4NzFCMEVFRTkKUldUcDdyQngrSjVsZGRqOG5uZkRqaTNCMWMwYmJyRHg3VWtoZ3M1OGVLVlMzUDJVWi9sUUJyaUUK",
       "endpoints": [
-        "https://github.com/Snootic/ai-office-translator/releases/latest/download/latest.json"
-      ],
-      "windows": {
-        "installMode": "passive"
-      } 
+        "https://github.com/snootic/ai-office-translator/releases/latest/download/latest/latest.json"
+      ] 
     }
   },
   "app": {

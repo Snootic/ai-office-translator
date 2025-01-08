@@ -1,7 +1,15 @@
-# Tauri + Vanilla
+# AI Translator
+Translate mutiple type of files natively using AI mainting the file structure and formatting intact!
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Javascript.
+**This app relies on ChatGPT and/or DeepL API_Keys**
 
-## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Pictures
+
+![Imagem-1](src/assets/pictures/window-1.png)
+
+![Imagem-2](src/assets/pictures/window-2.png)
+
+![Imagem-3](src/assets/pictures/window-3.png)
+
+![Imagem-4](src/assets/pictures/window-4.png)
