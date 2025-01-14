@@ -34,9 +34,10 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "AI Office Translator",
-        "width": 1000,
-        "height": 700
+        "title": "AI Office Translator - Updater",
+        "width": 500,
+        "height": 500,
+        "url": "update.html"
       }
     ],
     "security": {
