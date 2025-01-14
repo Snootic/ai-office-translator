@@ -1,7 +1,8 @@
 use std::sync::Once;
 
+use serde::Serialize;
 use tauri_plugin_updater::UpdaterExt;
-use tauri::{path::BaseDirectory, App, Manager};
+use tauri::{path::BaseDirectory, App, Manager, Emitter};
 
 static INIT: Once = Once::new();
 static mut DOCUMENTS: Option<String> = None;
@@ -10,6 +11,12 @@ static mut TRANSLATE: Option<String> = None;
 static mut GLOSSARY: Option<String> = None;
 static mut GPT_KEYS: Option<String> = None;
 static mut DEEPL_KEYS: Option<String> = None;
+
+#[derive(Clone, Serialize)]
+struct AppUpdate {
+    total_size: Option<u64>,
+    downloaded_size: usize
+}
 
 pub fn initialize_modules(app: &App) {
     INIT.call_once(|| {
@@ -87,6 +94,10 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
                 |chunk_length, content_length| {
                     downloaded += chunk_length;
                     println!("downloaded {downloaded} from {content_length:?}");
+                    app.emit("update-progress", AppUpdate {
+                        total_size: content_length,
+                        downloaded_size: downloaded
+                    }).unwrap();
                 },
                 || {
                     println!("download finished");
@@ -99,6 +110,7 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     }
     else {
         println!("no update available");
+        app.emit("update-progress", "no-update").unwrap();
     }
 
     Ok(())
