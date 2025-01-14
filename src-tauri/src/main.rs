@@ -39,13 +39,12 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .setup(|app| {
+            ai_translator::run_updater(&app);
             let binding = app.path().resolve(".", BaseDirectory::Resource).unwrap();
             let path = binding.to_str().unwrap();
             env::set_var("PYTHONPATH", path);
             
             ai_translator::initialize_modules(&app);
-
-            ai_translator::run_updater(&app);
 
             let _ = process_call::set_sys_path();
 
