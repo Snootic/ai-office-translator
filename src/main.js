@@ -1,5 +1,9 @@
 import { initializeKeys, apiKey, keys } from "./getApiKeys.js";
 const { invoke } = window.__TAURI__.core;
+const { getVersion } = window.__TAURI__.app;
+
+const versionText = document.getElementById("app-version");
+versionText.innerHTML = `v${await getVersion()}`;
 
 const model_select = document.getElementById("model-selector")
 

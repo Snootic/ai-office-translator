@@ -6,7 +6,7 @@ pub mod documents_handler {
     use std::io::Write;
     use std::path::PathBuf;
 
-    use crate::{lib, process_call};
+    use crate::{ai_translator, process_call};
     use process_call::handle_python_call;
 
     pub fn copy_file(file_data: Vec<u8>, file_name: &str) -> Result<String, String> {
@@ -35,7 +35,7 @@ pub mod documents_handler {
         let args: Vec<&str> = vec![file_absolute_path.as_str()];
 
         handle_python_call(
-            lib::get_documents().unwrap_or(""),
+            ai_translator::get_documents().unwrap_or(""),
             "documents",
             "File",
             None,
