@@ -13,10 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
-            args: '--target x86_64-apple-darwin'
+          # removing macos builds for now since I cant test
+          # - platform: 'macos-latest' # for Arm based macs (M1 and above).
+            # args: '--target aarch64-apple-darwin'
+          # - platform: 'macos-latest' # for Intel based macs.
+            # args: '--target x86_64-apple-darwin'
           - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ''
           - platform: 'windows-latest'
@@ -25,11 +26,6 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -47,13 +43,18 @@ jobs:
       
       - name: install windows python embeddable package
         if: matrix.platform == 'windows-latest'
+        uses: suisei-cn/actions-download-file@818d6b7dc8fe73f2f924b6241f2b1134ca1377d9
+        id: python
+        with:
+          url: "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip"
+          target: ./
+          filename: python.zip
+
+      - name: unpack python interpreter
+        if: matrix.platform == 'windows-latest'
         run: |
-          wget https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip -o ./python.zip
           mkdir ./python
           Tar -xf ./python.zip -C ./python
-        
-      - name: install frontend dependencies
-        run: yarn install # change this to npm, pnpm or bun depending on which one you use.
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
@@ -61,8 +62,20 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies (unix)
+        if: matrix.platform != 'windows-latest'
         run: |
+          python -m venv .venv
+          chmod +X ./.venv/bin/activate
+          ./.venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Python dependencies (windows)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          python -m venv .venv
+          ./.venv/Scripts/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
