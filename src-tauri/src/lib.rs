@@ -16,6 +16,7 @@ static mut DEEPL_KEYS: Option<String> = None;
 struct AppUpdate {
     total_size: Option<u64>,
     downloaded_size: usize,
+    version: String,
 }
 
 pub fn initialize_modules(app: &App) {
@@ -102,11 +103,6 @@ pub fn run_updater(app: &App) {
     });
 }
 async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
-    println!(
-        "Current app version{}",
-        app.package_info().version.to_string()
-    );
-    println!("checking for updates");
     if let Some(update) = app.updater()?.check().await? {
         let mut downloaded = 0;
 
@@ -120,6 +116,7 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
                         AppUpdate {
                             total_size: content_length,
                             downloaded_size: downloaded,
+                            version: update.version.clone(),
                         },
                     )
                     .unwrap();
