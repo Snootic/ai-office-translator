@@ -173,6 +173,25 @@ select{
   background-color: var(--shadow);
 }
 
+#download-progress {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  background: var(--backgroundColor2);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#progress-bar {
+  width: 1%;
+  height: 30px;
+  background-color: var(--inputBorderColor);
+  border-radius: 10px;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
