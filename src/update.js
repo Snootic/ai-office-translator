@@ -12,10 +12,6 @@ listen('update-progress', (event) => {
     
     downloadProgress.classList.add("show");
 
-    if (event.payload == "no-update") {
-        window.location.replace("index.html");
-    }
-
     const { total_size, downloaded_size } = event.payload;
     const progressPercentage = (downloaded_size / total_size) * 100;
     progressBar.style.width = `${progressPercentage.toFixed(2)}%`;

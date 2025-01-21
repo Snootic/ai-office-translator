@@ -1,8 +1,8 @@
 use std::sync::Once;
 
 use serde::Serialize;
+use tauri::{path::BaseDirectory, App, Emitter, Manager};
 use tauri_plugin_updater::UpdaterExt;
-use tauri::{path::BaseDirectory, App, Manager, Emitter};
 
 static INIT: Once = Once::new();
 static mut DOCUMENTS: Option<String> = None;
@@ -15,37 +15,55 @@ static mut DEEPL_KEYS: Option<String> = None;
 #[derive(Clone, Serialize)]
 struct AppUpdate {
     total_size: Option<u64>,
-    downloaded_size: usize
+    downloaded_size: usize,
 }
 
 pub fn initialize_modules(app: &App) {
     INIT.call_once(|| {
-        let binding = app.path().resolve("src/translator/documents.py", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/translator/documents.py", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             DOCUMENTS = Some(binding.to_str().unwrap().to_string());
         }
 
-        let binding = app.path().resolve("src/translator/utils.py", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/translator/utils.py", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             UTILS = Some(binding.to_str().unwrap().to_string());
         }
 
-        let binding = app.path().resolve("src/translator/translate.py", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/translator/translate.py", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             TRANSLATE = Some(binding.to_str().unwrap().to_string());
         }
 
-        let binding = app.path().resolve("src/translator/glossary.py", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/translator/glossary.py", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             GLOSSARY = Some(binding.to_str().unwrap().to_string());
         }
 
-        let binding = app.path().resolve("src/config/gpt_keys.json", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/config/gpt_keys.json", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             GPT_KEYS = Some(binding.to_str().unwrap().to_string());
         }
 
-        let binding = app.path().resolve("src/config/deepl_keys.json", BaseDirectory::Resource).unwrap();
+        let binding = app
+            .path()
+            .resolve("src/config/deepl_keys.json", BaseDirectory::Resource)
+            .unwrap();
         unsafe {
             DEEPL_KEYS = Some(binding.to_str().unwrap().to_string());
         }
@@ -84,7 +102,10 @@ pub fn run_updater(app: &App) {
     });
 }
 async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
-    println!("Current app version{}", app.package_info().version.to_string());
+    println!(
+        "Current app version{}",
+        app.package_info().version.to_string()
+    );
     println!("checking for updates");
     if let Some(update) = app.updater()?.check().await? {
         let mut downloaded = 0;
@@ -94,10 +115,14 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
                 |chunk_length, content_length| {
                     downloaded += chunk_length;
                     println!("downloaded {downloaded} from {content_length:?}");
-                    app.emit("update-progress", AppUpdate {
-                        total_size: content_length,
-                        downloaded_size: downloaded
-                    }).unwrap();
+                    app.emit(
+                        "update-progress",
+                        AppUpdate {
+                            total_size: content_length,
+                            downloaded_size: downloaded,
+                        },
+                    )
+                    .unwrap();
                 },
                 || {
                     println!("download finished");
@@ -107,10 +132,13 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
 
         println!("update installed");
         app.restart();
-    }
-    else {
+    } else {
         println!("no update available");
-        app.emit("update-progress", "no-update").unwrap();
+
+        let update_window = app.get_webview_window("update").unwrap();
+        let main_window = app.get_webview_window("main").unwrap();
+        update_window.close().unwrap();
+        main_window.show().unwrap();
     }
 
     Ok(())
