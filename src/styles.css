@@ -192,6 +192,16 @@ select{
   border-radius: 10px;
 }
 
+#app-version {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 0.5rem;
+  background-color: var(--backgroundColor2);
+  border-radius: 12px;
+  margin: 1rem;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
