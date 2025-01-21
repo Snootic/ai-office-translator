@@ -67,7 +67,7 @@ jobs:
           cache: 'pip'
 
       - name: Install Python dependencies (unix)
-        if: matrix.platform != "windows-latest"
+        if: matrix.platform != 'windows-latest'
         run: |
           python -m venv .venv
           ./.venv/bin/activate
