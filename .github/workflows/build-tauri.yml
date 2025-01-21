@@ -47,8 +47,13 @@ jobs:
       
       - name: install windows python embeddable package
         if: matrix.platform == 'windows-latest'
+        uses: wei/wget@v1
+        with:
+          args: -O python.zip https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
+
+      - name: unpack python interpreter
+        if: matrix.platform == 'windows-latest'
         run: |
-          wget https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip -o ./python.zip
           mkdir ./python
           Tar -xf ./python.zip -C ./python
         
@@ -61,8 +66,19 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies (unix)
+        if: matrix.platform != "windows-latest"
         run: |
+          python -m venv .venv
+          ./.venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Python dependencies (windows)
+        if: matrix.platform == "windows-latest"
+        run: |
+          python -m venv .venv
+          ./.venv/Scripts/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
