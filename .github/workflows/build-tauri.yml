@@ -94,5 +94,5 @@ jobs:
           releaseDraft: false
           prerelease: false
           includeDebug: true
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} --verbose
           updaterJsonPreferNsis: true
