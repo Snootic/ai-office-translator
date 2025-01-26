@@ -102,15 +102,25 @@ pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_ar
     }
 }
 
-pub fn set_sys_path(mut binding: PathBuf) -> PyResult<()> {
-    binding = binding.join("lib");
+pub fn set_sys_path(binding: PathBuf) -> PyResult<()> {
     let libs = binding.to_str().unwrap();
+    let win_site_packages_path = binding.join("Python311/site-packages");
+    let win_site_packages = win_site_packages_path.to_str().unwrap();
+
+    let site_packages_unix_path = binding.join("lib/python3.11/site-packages");
+    let site_packages_unix = site_packages_unix_path.to_str().unwrap();
+
+    let args = cfg!(target_os = "windows")
+    .then(|| vec![libs, win_site_packages])
+    .unwrap_or(vec![libs, site_packages_unix]);
 
     Python::with_gil(|py| {
         let sys = py.import("sys")?;
         let path = sys.getattr("path")?;
-        path.call_method1("append", (libs,))?;
-        
+        for arg in args.iter() {
+            path.call_method1("append", (arg,))?;
+        }
+
         Ok(())
     })
 }

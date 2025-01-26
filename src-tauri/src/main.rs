@@ -43,19 +43,33 @@ fn main() {
             dependencies: false,
         }))
         .setup(|app| {
+            let mut libs_binding = app.path().app_data_dir().unwrap();
+            libs_binding = libs_binding.join("lib");
+            let lib_path = libs_binding.to_str().unwrap();
+
+            let sys_path = env::var("PATH").unwrap_or_default();
+
+            let bin_binding = cfg!(target_os = "windows")
+                .then(|| libs_binding.join("Python311\\Scripts"))
+                .unwrap_or(libs_binding.join("bin"));
+            let bin_path = bin_binding.to_str().unwrap();
+
+            let path = cfg!(target_os = "windows")
+                .then(|| format!("{};{};{}", sys_path, lib_path, bin_path))
+                .unwrap_or(format!("{}:{}:{}", sys_path, lib_path, bin_path));
+
+            env::set_var("PATH", path);
+            env::set_var("PYTHONPATH", lib_path);
+            env::set_var("PYTHONUSERBASE", lib_path);
+            
+            ai_translator::initialize_modules(&app);
+            
+            let _ = process_call::set_sys_path(libs_binding);
+            
             ai_translator::run_updater(app);
 
             ai_translator::handle_dependencies(app);
-
-            let binding = app.path().resolve(".", BaseDirectory::Resource).unwrap();
-            let path = binding.to_str().unwrap();
-            env::set_var("PYTHONPATH", path);
             
-            ai_translator::initialize_modules(&app);
-
-            let libs_binding = app.path().app_cache_dir().unwrap();
-
-            let _ = process_call::set_sys_path(libs_binding);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
