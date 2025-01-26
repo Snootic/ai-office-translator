@@ -1,9 +1,8 @@
-use std::{process::Stdio, sync::{Mutex, Once}};
+use std::{collections::HashMap, path::{Path, PathBuf}, process::Stdio, sync::{Mutex, Once}, thread::current};
 
 use serde::Serialize;
 use tauri::{path::BaseDirectory, App, Emitter, Manager, State};
 use tauri_plugin_updater::UpdaterExt;
-use tokio::io::{ BufReader, AsyncBufReadExt };
 
 static INIT: Once = Once::new();
 static mut DOCUMENTS: Option<String> = None;
@@ -169,47 +168,101 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
 }
 
 pub fn handle_dependencies(app: &App) {
-    let handle = app.handle().clone();
+    let binding = app.path().app_data_dir().unwrap();
+    println!("installing dependencies");
+
+    let deps_json_path = binding.join("installed_dependencies.json");
+
+    let python = cfg!(target_os = "windows")
+        .then(|| "python.exe")
+        .unwrap_or("python");
+
+    let python_executable = app.path().resolve(python, BaseDirectory::Resource).unwrap();
+
+    let get_pip = app.path().resolve("get-pip.py", BaseDirectory::Resource).unwrap();
+    
+    let requirements_url = "https://raw.githubusercontent.com/snootic/ai-office-translator/main/requirements.txt";
+    // let requirements_url = "http://127.0.0.1:5500/requirements.txt";
+
+    let app_handle = app.handle().clone();
     tauri::async_runtime::spawn(async move {
-        let _ = install_dependencies(handle).await;
+        let requirements_response = reqwest::get(requirements_url)
+            .await
+            .map_err(|_| ()).unwrap()
+            .text()
+            .await
+            .map_err(|_| ()).unwrap();
+
+        let splited_requirements: Vec<&str> = requirements_response.split("\n").collect();
+        let requirements: std::collections::HashMap<String, String> = splited_requirements
+            .iter()
+            .filter(|&r| !r.is_empty())
+            .map(|r| {
+                let parts: Vec<&str> = r.split("==").collect();
+                (parts[0].to_string(), parts[1].to_string())
+            })
+            .collect();
+
+        for (package, version) in requirements.iter() {
+            let installed_dependencies_json = std::fs::read_to_string(deps_json_path.to_str().unwrap())
+                .unwrap_or_default();
+
+            // println!("Installed dependencies: {}", installed_dependencies_json);
+    
+            let installed_dependencies: HashMap<String, String> = serde_json::from_str(&installed_dependencies_json)
+                .unwrap_or_default();
+
+            // println!("Package: {}, Version: {}", package, version);
+    
+            if !installed_dependencies.contains_key(package) || installed_dependencies.get(package).unwrap() != version {
+                let _ = install_dependencies(
+                        &requirements_url,
+                        python_executable.clone(),
+                        get_pip.clone(),
+                        deps_json_path.clone(),
+                        requirements.clone()
+                    ).await;
+                app_handle.restart();
+                // println!("Restarting app");
+                // break;
+            }
+        }
+        let _ = set_complete(
+            app_handle.clone(), 
+            app_handle.state::<Mutex<SideTasks>>(),
+            "dependencies".to_string()
+        ).await;       
+
     });
 }
 
-async fn install_dependencies(app: tauri::AppHandle) -> Result<(), ()> {
-    let mut binding = app.path().app_data_dir().unwrap();
-    println!("installing dependencies");
-    binding = binding.join("lib");
-    let path = binding.to_str().unwrap();
+async fn install_dependencies(requirements_url: &str, python_executable: PathBuf, get_pip: PathBuf, deps_json_path: PathBuf, dependencies: HashMap<String, String>) -> Result<(), ()> {
+    tokio::process::Command::new(python_executable.to_str().unwrap())
+        .args(&[get_pip.to_str().unwrap(), "--user", "--break-system-packages"])
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("failed to spawn command")
+        .wait()
+        .await
+        .expect("child process encountered an error");
     
-    let mut cmd = tokio::process::Command::new("pip");
+    let mut cmd = tokio::process::Command::new(python_executable.to_str().unwrap());
 
-    cmd.args(&["install", "-r", "https://raw.githubusercontent.com/snootic/ai-office-translator/main/requirements.txt", "--target", path]);
+    cmd.args(&["-m","pip","install", "-r", requirements_url, "--user", "--break-system-packages"]);
     cmd.stdout(Stdio::piped());
 
     let mut child = cmd.spawn()
         .expect("failed to spawn command");
 
-    let stdout = child.stdout.take()
-        .expect("child did not have a handle to stdout");
+    let status = child.wait().await
+        .expect("child process encountered an error");
 
-    let mut reader = BufReader::new(stdout).lines();
-
-    tokio::spawn(async move {
-        let status = child.wait().await
-            .expect("child process encountered an error");
-
-        println!("child status was: {}", status);
-    });
-
-    while let Some(line) = reader.next_line().await.map_err(|_| ())? {
-        println!("Line: {}", line);
+    if status.success() {
+        println!("Dependencies installed successfully");
+        let json = serde_json::to_string(&dependencies).unwrap();
+        std::fs::write(deps_json_path, json).expect("Failed to write dependencies file");
+        Ok(())
+    } else {
+        Err(())
     }
-
-    set_complete(
-        app.clone(), 
-        app.state::<Mutex<SideTasks>>(),
-        "dependencies".to_string()
-    ).await?;
-
-    Ok(())
 }
