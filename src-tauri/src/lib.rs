@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::{Path, PathBuf}, process::Stdio, sync::{Mutex, Once}, thread::current};
+use std::{collections::HashMap, path::PathBuf, process::Stdio, sync::{Mutex, Once}};
 
 use serde::Serialize;
 use tauri::{path::BaseDirectory, App, Emitter, Manager, State};

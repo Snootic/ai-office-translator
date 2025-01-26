@@ -14,7 +14,7 @@ use std::{env, sync::Mutex};
 use documents::documents_handler;
 use get_api_keys::{get_deepl_keys, get_gpt_keys, Item};
 use glossary::glossary_handler;
-use tauri::{path::BaseDirectory, Manager};
+use tauri::Manager;
 use translate::translate_handler;
 use utils::utils_handler;
 
