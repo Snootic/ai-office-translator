@@ -9,7 +9,7 @@ mod translate;
 mod utils;
 use ai_translator;
 
-use std::env;
+use std::{env, sync::Mutex};
 
 use documents::documents_handler;
 use get_api_keys::{get_deepl_keys, get_gpt_keys, Item};
@@ -38,16 +38,24 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
+        .manage(Mutex::new(ai_translator::SideTasks {
+            updater: false,
+            dependencies: false,
+        }))
         .setup(|app| {
-            ai_translator::run_updater(&app);
+            ai_translator::run_updater(app);
+
+            ai_translator::handle_dependencies(app);
+
             let binding = app.path().resolve(".", BaseDirectory::Resource).unwrap();
             let path = binding.to_str().unwrap();
             env::set_var("PYTHONPATH", path);
             
             ai_translator::initialize_modules(&app);
 
-            let _ = process_call::set_sys_path();
+            let libs_binding = app.path().app_cache_dir().unwrap();
 
+            let _ = process_call::set_sys_path(libs_binding);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

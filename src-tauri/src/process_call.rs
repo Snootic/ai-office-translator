@@ -1,5 +1,6 @@
 use std::fs;
 use std::ffi::CString;
+use std::path::PathBuf;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
@@ -101,10 +102,10 @@ pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_ar
     }
 }
 
-pub fn set_sys_path() -> PyResult<()> {
-    let binding = std::env::current_exe().unwrap();
-    let raw_path = binding.parent().unwrap();
-    let libs = raw_path.join("Lib");
+pub fn set_sys_path(mut binding: PathBuf) -> PyResult<()> {
+    binding = binding.join("lib");
+    let libs = binding.to_str().unwrap();
+
     Python::with_gil(|py| {
         let sys = py.import("sys")?;
         let path = sys.getattr("path")?;
