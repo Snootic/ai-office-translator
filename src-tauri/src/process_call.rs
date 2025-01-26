@@ -12,7 +12,9 @@ pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Opti
     let file_name = format!("{}.py",module);
     let code = fs::read_to_string(file_path).expect("Python file not found");
     let module = module.to_string();
-
+    
+    pyo3::prepare_freethreaded_python();
+    
     Python::with_gil(|py| {
         let code_cstr = CString::new(code).unwrap();
         let file_name_cstr = CString::new(file_name).unwrap();
@@ -113,8 +115,11 @@ pub fn set_sys_path(binding: PathBuf) -> PyResult<()> {
     let args = cfg!(target_os = "windows")
     .then(|| vec![libs, win_site_packages])
     .unwrap_or(vec![libs, site_packages_unix]);
-
+    
+    pyo3::prepare_freethreaded_python();
+    
     Python::with_gil(|py| {
+        
         let sys = py.import("sys")?;
         let path = sys.getattr("path")?;
         for arg in args.iter() {
