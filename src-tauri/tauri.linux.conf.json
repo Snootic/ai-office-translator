@@ -1,8 +1,8 @@
 {
     "bundle": {
         "resources": {
-            "../.venv/bin": ".",
-            "../.venv/lib/python3.11/site-packages": "Lib"
+            "/bin/python3.11": "python",
+            "../src/get-pip.py": "get-pip.py"
         }
     }
 }
