@@ -179,7 +179,7 @@ pub fn handle_dependencies(app: &App) {
 
     let python_executable = app.path().resolve(python, BaseDirectory::Resource).unwrap();
 
-    let get_pip = app.path().resolve("get-pip.py", BaseDirectory::Resource).unwrap();
+    let temp_dir = app.path().temp_dir().unwrap();
     
     let requirements_url = "https://raw.githubusercontent.com/snootic/ai-office-translator/main/requirements.txt";
     // let requirements_url = "http://127.0.0.1:5500/requirements.txt";
@@ -218,7 +218,7 @@ pub fn handle_dependencies(app: &App) {
                 let _ = install_dependencies(
                         &requirements_url,
                         python_executable.clone(),
-                        get_pip.clone(),
+                        temp_dir.clone(),
                         deps_json_path.clone(),
                         requirements.clone()
                     ).await;
@@ -236,7 +236,22 @@ pub fn handle_dependencies(app: &App) {
     });
 }
 
-async fn install_dependencies(requirements_url: &str, python_executable: PathBuf, get_pip: PathBuf, deps_json_path: PathBuf, dependencies: HashMap<String, String>) -> Result<(), ()> {
+async fn install_dependencies(requirements_url: &str, python_executable: PathBuf, temp_dir: PathBuf, deps_json_path: PathBuf, dependencies: HashMap<String, String>) -> Result<(), ()> {
+    let get_pip = temp_dir.join("get-pip.py");
+
+    if !get_pip.exists() {
+        let get_pip_url = "https://bootstrap.pypa.io/get-pip.py";
+    
+        let get_pip_request = reqwest::get(get_pip_url)
+            .await
+            .map_err(|_| ()).unwrap()
+            .bytes()
+            .await
+            .map_err(|_| ()).unwrap();
+    
+        std::fs::write(&get_pip, get_pip_request).expect("Failed to write get-pip file");
+    }
+
     tokio::process::Command::new(python_executable.to_str().unwrap())
         .args(&[get_pip.to_str().unwrap(), "--user", "--break-system-packages"])
         .stdout(Stdio::piped())
