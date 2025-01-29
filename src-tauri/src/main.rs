@@ -48,8 +48,14 @@ fn main() {
             let data_dir = app.path().app_data_dir().unwrap();
             let initial_config_json_path = data_dir.join("windows_initial_config.json");
 
-            if cfg!(target_os = "windows") && initial_config_json_path.exists() {
-                let initial_config_content = std::fs::read_to_string(&initial_config_json_path).unwrap();
+            if cfg!(target_os = "windows") {
+                let initial_config_content = match std::fs::read_to_string(&initial_config_json_path) {
+                    Ok(content) => content,
+                    Err(e) => {
+                        eprintln!("Error reading windows initial config: {}", e);
+                        String::new()
+                    }
+                };
                 let initial_config_json: Value = match serde_json::from_str(&initial_config_content) {
                     Ok(json) => json,
                     Err(e) => {
@@ -58,7 +64,7 @@ fn main() {
                     }
                 };
 
-                if initial_config_json["initial_config"] == true {
+                if !initial_config_json_path.exists() || initial_config_json["initial_config"] == true {
                     println!("Running initial config for windows");
                     let _ = ai_translator::windows_initial_config(app);
                     return Ok(());
