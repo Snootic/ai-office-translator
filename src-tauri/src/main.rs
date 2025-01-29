@@ -18,6 +18,8 @@ use tauri::Manager;
 use translate::translate_handler;
 use utils::utils_handler;
 
+use serde_json::Value;
+
 #[tauri::command]
 fn get_chatgpt_keys() -> Result<Vec<Item>, String> {
     match crate::get_gpt_keys() {
@@ -43,8 +45,28 @@ fn main() {
             dependencies: false,
         }))
         .setup(|app| {
-            let mut libs_binding = app.path().app_data_dir().unwrap();
-            libs_binding = libs_binding.join("lib");
+            let data_dir = app.path().app_data_dir().unwrap();
+            let initial_config_json_path = data_dir.join("windows_initial_config.json");
+
+            if cfg!(target_os = "windows") && initial_config_json_path.exists() {
+                let initial_config_content = std::fs::read_to_string(&initial_config_json_path).unwrap();
+                let initial_config_json: Value = match serde_json::from_str(&initial_config_content) {
+                    Ok(json) => json,
+                    Err(e) => {
+                        eprintln!("Error parsing windows initial config: {}", e);
+                        Value::Object(serde_json::Map::new())
+                    }
+                };
+
+                if initial_config_json["initial_config"] == true {
+                    println!("Running initial config for windows");
+                    let _ = ai_translator::windows_initial_config(app);
+                    return Ok(());
+                }
+            }
+
+            
+            let libs_binding = data_dir.join("lib");
             let lib_path = libs_binding.to_str().unwrap();
 
             let sys_path = env::var("PATH").unwrap_or_default();

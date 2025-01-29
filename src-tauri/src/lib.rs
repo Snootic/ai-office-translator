@@ -266,3 +266,71 @@ async fn install_dependencies(requirements_url: &str, python_executable: PathBuf
         Err(())
     }
 }
+
+pub fn windows_initial_config(app: &App) -> Result<(),()> {
+    let handle = app.handle().clone();
+
+    let temp_dir = app.path().temp_dir().unwrap();
+
+    let resource_dir = app.path().resource_dir().unwrap();
+
+    let data_dir = app.path().app_data_dir().unwrap();
+
+    let _ = tauri::async_runtime::spawn_blocking( move || {
+        unzip_win_python_package(temp_dir.clone(), resource_dir.clone());
+        
+        fix_win_pth(resource_dir.clone());
+
+        let windows_initial_config_json = serde_json::json!({
+            "initial_config": false
+        });
+
+        let windows_initial_config_path = data_dir.join("windows_initial_config.json");
+
+        if !windows_initial_config_path.exists() {
+            let prefix = windows_initial_config_path.parent().unwrap();
+            std::fs::create_dir_all(prefix).unwrap();
+        }
+
+        std::fs::write(windows_initial_config_path, windows_initial_config_json.to_string()).unwrap();
+
+        handle.restart();
+    });
+
+    Ok(())
+}
+
+fn unzip_win_python_package(temp_dir: PathBuf, resource_dir: PathBuf) {
+    fn fake_callback() {
+        println!("called");
+    }
+    
+    let url = "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip";
+
+    let unzip_engine = ripunzip::UnzipEngine::for_uri(url, None, fake_callback);
+    
+    let reporter = Box::new(ripunzip::NullProgressReporter);
+
+    let options = ripunzip::UnzipOptions {
+        output_directory: Some(temp_dir.join("python")),
+        password: None,
+        single_threaded: false,
+        filename_filter: None,
+        progress_reporter: reporter,
+    };
+    
+    unzip_engine.unwrap().unzip(options).unwrap();
+
+    for file in std::fs::read_dir(temp_dir.join("python")).unwrap() {
+        let file = file.unwrap();
+        let _ = std::fs::copy(file.path(), resource_dir.join(file.file_name()));
+    }
+
+}
+
+fn fix_win_pth(resource_dir: PathBuf) {
+    let pth = resource_dir.join("python311._pth");
+    let mut pth_content = std::fs::read_to_string(&pth).unwrap();
+    pth_content = pth_content.replace("#import site", "import site");
+    std::fs::write(pth, pth_content).unwrap();
+}
