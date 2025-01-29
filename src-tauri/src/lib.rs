@@ -113,6 +113,9 @@ async fn set_complete(app: tauri::AppHandle, state: State<'_, Mutex<SideTasks>>,
     if state.updater && state.dependencies {
         let update_window = app.get_webview_window("update").unwrap();
         let main_window = app.get_webview_window("main").unwrap();
+        println!("{}",main_window.app_handle().asset_resolver().get("main.js".to_string()).unwrap().mime_type);
+        println!("{}",main_window.app_handle().asset_resolver().get("get_languages.js".to_string()).unwrap().mime_type);
+        println!("{}",main_window.app_handle().asset_resolver().get("document.js".to_string()).unwrap().mime_type);
         update_window.close().unwrap();
         main_window.show().unwrap();
     }
@@ -173,11 +176,13 @@ pub fn handle_dependencies(app: &App) {
 
     let deps_json_path = binding.join("installed_dependencies.json");
 
-    let python = cfg!(target_os = "windows")
-        .then(|| "python.exe")
-        .unwrap_or("python");
+    let win_python = app.path().app_data_dir().unwrap().join("Python311").join("python.exe");
 
-    let python_executable = app.path().resolve(python, BaseDirectory::Resource).unwrap();
+    let python_executable = cfg!(target_os = "windows")
+        .then(|| win_python.to_str().unwrap().to_string())
+        .unwrap_or("python3".to_string());
+
+    // let python_executable = app.path().resolve(python, BaseDirectory::Resource).unwrap();
 
     let temp_dir = app.path().temp_dir().unwrap();
     
@@ -236,7 +241,7 @@ pub fn handle_dependencies(app: &App) {
     });
 }
 
-async fn install_dependencies(requirements_url: &str, python_executable: PathBuf, temp_dir: PathBuf, deps_json_path: PathBuf, dependencies: HashMap<String, String>) -> Result<(), ()> {
+async fn install_dependencies(requirements_url: &str, python_executable: String, temp_dir: PathBuf, deps_json_path: PathBuf, dependencies: HashMap<String, String>) -> Result<(), ()> {
     let get_pip = temp_dir.join("get-pip.py");
 
     if !get_pip.exists() {
@@ -252,7 +257,7 @@ async fn install_dependencies(requirements_url: &str, python_executable: PathBuf
         std::fs::write(&get_pip, get_pip_request).expect("Failed to write get-pip file");
     }
 
-    tokio::process::Command::new(python_executable.to_str().unwrap())
+    tokio::process::Command::new(python_executable.clone())
         .args(&[get_pip.to_str().unwrap(), "--user", "--break-system-packages"])
         .stdout(Stdio::piped())
         .spawn()
@@ -261,7 +266,7 @@ async fn install_dependencies(requirements_url: &str, python_executable: PathBuf
         .await
         .expect("child process encountered an error");
     
-    let mut cmd = tokio::process::Command::new(python_executable.to_str().unwrap());
+    let mut cmd = tokio::process::Command::new(python_executable.clone());
 
     cmd.args(&["-m","pip","install", "-r", requirements_url, "--user", "--break-system-packages"]);
     cmd.stdout(Stdio::piped());
@@ -287,25 +292,22 @@ pub fn windows_initial_config(app: &App) -> Result<(),()> {
 
     let temp_dir = app.path().temp_dir().unwrap();
 
-    let resource_dir = app.path().resource_dir().unwrap();
-
     let data_dir = app.path().app_data_dir().unwrap();
 
     let _ = tauri::async_runtime::spawn_blocking( move || {
-        unzip_win_python_package(temp_dir.clone(), resource_dir.clone());
+        if !data_dir.exists() {
+            std::fs::create_dir_all(data_dir.clone()).unwrap();
+        }
+
+        unzip_win_python_package(temp_dir.clone(), data_dir.clone());
         
-        fix_win_pth(resource_dir.clone());
+        fix_win_pth(data_dir.clone());
 
         let windows_initial_config_json = serde_json::json!({
             "initial_config": false
         });
 
         let windows_initial_config_path = data_dir.join("windows_initial_config.json");
-
-        if !windows_initial_config_path.exists() {
-            let prefix = windows_initial_config_path.parent().unwrap();
-            std::fs::create_dir_all(prefix).unwrap();
-        }
 
         std::fs::write(windows_initial_config_path, windows_initial_config_json.to_string()).unwrap();
 
@@ -315,11 +317,11 @@ pub fn windows_initial_config(app: &App) -> Result<(),()> {
     Ok(())
 }
 
-fn unzip_win_python_package(temp_dir: PathBuf, resource_dir: PathBuf) {
+fn unzip_win_python_package(temp_dir: PathBuf, data_dir: PathBuf) {
     fn fake_callback() {
         println!("called");
     }
-    
+
     let url = "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip";
 
     let unzip_engine = ripunzip::UnzipEngine::for_uri(url, None, fake_callback);
@@ -336,15 +338,17 @@ fn unzip_win_python_package(temp_dir: PathBuf, resource_dir: PathBuf) {
     
     unzip_engine.unwrap().unzip(options).unwrap();
 
+    let _ = std::fs::create_dir_all(data_dir.join("Python311"));
+
     for file in std::fs::read_dir(temp_dir.join("python")).unwrap() {
         let file = file.unwrap();
-        let _ = std::fs::copy(file.path(), resource_dir.join(file.file_name()));
+        let _ = std::fs::copy(file.path(), data_dir.join("Python311").join(file.file_name()));
     }
 
 }
 
-fn fix_win_pth(resource_dir: PathBuf) {
-    let pth = resource_dir.join("python311._pth");
+fn fix_win_pth(data_dir: PathBuf) {
+    let pth = data_dir.join("Python311\\python311._pth");
     let mut pth_content = std::fs::read_to_string(&pth).unwrap();
     pth_content = pth_content.replace("#import site", "import site");
     std::fs::write(pth, pth_content).unwrap();

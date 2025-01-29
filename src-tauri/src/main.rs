@@ -70,10 +70,14 @@ fn main() {
                     return Ok(());
                 }
             }
-
             
-            let libs_binding = data_dir.join("lib");
+            let libs_binding = cfg!(target_os = "windows")
+                .then(|| data_dir.clone())
+                .unwrap_or(data_dir.join("Python311"));
             let lib_path = libs_binding.to_str().unwrap();
+
+            let python_path_binding = libs_binding.join("Python311");
+            let python_path = python_path_binding.to_str().unwrap();
 
             let sys_path = env::var("PATH").unwrap_or_default();
 
@@ -87,8 +91,12 @@ fn main() {
                 .unwrap_or(format!("{}:{}:{}", sys_path, lib_path, bin_path));
 
             env::set_var("PATH", path);
-            env::set_var("PYTHONPATH", lib_path);
+            env::set_var("PYTHONPATH", python_path_binding.join("Python311.zip").to_str().unwrap());
             env::set_var("PYTHONUSERBASE", lib_path);
+
+            if cfg!(target_os = "windows") {
+                env::set_var("PYTHONHOME", python_path);
+            }
             
             ai_translator::initialize_modules(&app);
             
