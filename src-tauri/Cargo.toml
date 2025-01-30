@@ -1,8 +1,8 @@
 [package]
 name = "ai_translator"
-version = "0.4.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "0.4.1"
+description = "An application to translate files using AI"
+authors = ["Snootic"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

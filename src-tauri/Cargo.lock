@@ -39,7 +39,7 @@ dependencies = [
 
 [[package]]
 name = "ai_translator"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "pyo3",
  "reqwest 0.12.12",

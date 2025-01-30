@@ -20,8 +20,8 @@
   },
   "productName": "AI-translator",
   "mainBinaryName": "AI-translator",
-  "version": "0.4.0",
-  "identifier": "AI-Office-Translator",
+  "version": "0.4.1",
+  "identifier": "AI-Translator",
   "plugins": {
     "updater": {
       "pubkey":"dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc1NjU5RUY4NzFCMEVFRTkKUldUcDdyQngrSjVsZGRqOG5uZkRqaTNCMWMwYmJyRHg3VWtoZ3M1OGVLVlMzUDJVWi9sUUJyaUUK",
