@@ -3,6 +3,7 @@ use std::{collections::HashMap, path::PathBuf, process::Stdio, sync::{Mutex, Onc
 use serde::Serialize;
 use tauri::{path::BaseDirectory, App, Emitter, Manager, State};
 use tauri_plugin_updater::UpdaterExt;
+use tokio::io::{AsyncBufReadExt, BufReader};
 
 static INIT: Once = Once::new();
 static mut DOCUMENTS: Option<String> = None;
@@ -257,13 +258,20 @@ async fn install_dependencies(requirements_url: &str, python_executable: String,
         std::fs::write(&get_pip, get_pip_request).expect("Failed to write get-pip file");
     }
 
-    tokio::process::Command::new(python_executable.clone())
+    let mut install_pip = tokio::process::Command::new(python_executable.clone())
         .args(&[get_pip.to_str().unwrap(), "--user", "--break-system-packages"])
         .stdout(Stdio::piped())
         .spawn()
-        .expect("failed to spawn command")
-        .wait()
-        .await
+        .expect("failed to spawn command");
+
+    let stdout = install_pip.stdout.take().expect("Failed to get stdout");
+    let mut stdout_reader = BufReader::new(stdout).lines();
+
+    while let Some(line) = stdout_reader.next_line().await.unwrap() {
+        println!("{}", line);
+    }
+
+    let _ = install_pip.wait().await
         .expect("child process encountered an error");
     
     let mut cmd = tokio::process::Command::new(python_executable.clone());
@@ -273,6 +281,13 @@ async fn install_dependencies(requirements_url: &str, python_executable: String,
 
     let mut child = cmd.spawn()
         .expect("failed to spawn command");
+
+    let stdout = child.stdout.take().expect("Failed to get stdout");
+    let mut stdout_reader = BufReader::new(stdout).lines();
+
+    while let Some(line) = stdout_reader.next_line().await.unwrap() {
+        println!("{}", line);
+    }
 
     let status = child.wait().await
         .expect("child process encountered an error");
