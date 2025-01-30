@@ -76,7 +76,9 @@ fn main() {
                 .unwrap_or(data_dir.join("Python311"));
             let lib_path = libs_binding.to_str().unwrap();
 
-            let python_path_binding = libs_binding.join("Python311");
+            let python_path_binding = cfg!(target_os = "windows")
+                .then(|| libs_binding.join("Python311"))
+                .unwrap_or(libs_binding.join("python3.11"));
             let python_path = python_path_binding.to_str().unwrap();
 
             let sys_path = env::var("PATH").unwrap_or_default();
