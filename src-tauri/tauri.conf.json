@@ -18,9 +18,9 @@
       "../src/config_files": "src/config"
     }
   },
-  "productName": "AI-translator",
-  "mainBinaryName": "AI-translator",
-  "version": "0.4.1",
+  "productName": "AI-Translator",
+  "mainBinaryName": "AI-Translator",
+  "version": "0.4.1-1",
   "identifier": "AI-Translator",
   "plugins": {
     "updater": {
