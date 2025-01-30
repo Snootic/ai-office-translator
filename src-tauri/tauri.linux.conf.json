@@ -1,8 +1,0 @@
-{
-    "bundle": {
-        "resources": {
-            "/bin/python3.11": "python",
-            "../src/get-pip.py": "get-pip.py"
-        }
-    }
-}
