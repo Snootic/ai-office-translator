@@ -1,4 +1,9 @@
 {
+  "$schema": "https://schema.tauri.app/config/2.0.0-rc",
+  "productName": "AI-Translator",
+  "mainBinaryName": "AI-Translator",
+  "version": "0.4.1-1",
+  "identifier": "com.snootic.ai-translator",
   "build": {
     "frontendDist": "../src"
   },
@@ -18,10 +23,7 @@
       "../src/config_files": "src/config"
     }
   },
-  "productName": "AI-Translator",
-  "mainBinaryName": "AI-Translator",
-  "version": "0.4.1-1",
-  "identifier": "AI-Translator",
+
   "plugins": {
     "updater": {
       "pubkey":"dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc1NjU5RUY4NzFCMEVFRTkKUldUcDdyQngrSjVsZGRqOG5uZkRqaTNCMWMwYmJyRHg3VWtoZ3M1OGVLVlMzUDJVWi9sUUJyaUUK",
