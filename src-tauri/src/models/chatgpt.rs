@@ -1,3 +1,4 @@
+use reqwest::{Error, Response};
 use serde_json::Value;
 
 use crate::models::model::APIClient;
@@ -13,8 +14,9 @@ impl ChatGPT {
     }
   }
 
-  pub async fn list_models(&self) -> Result<Vec<String>, reqwest::Error> {
-    let resp = self.client.get("https://api.openai.com/v1/models").await;
+  pub async fn list_models(&self) -> Result<Vec<String>, Error> {
+    let resp: Response = self.client.get("https://api.openai.com/v1/models").await;
+    let resp = resp.error_for_status()?;
     let json: Value = resp.json().await?;
 
     let allowed = [
@@ -42,5 +44,14 @@ impl ChatGPT {
     }
 
     Ok(filtered_models)
+  }
+
+  pub async fn get_monthly_billing(&self) -> Result<Value, Error> {
+    let resp: Response = self.client.get("https://api.openai.com/v1/organization/costs").await;
+    let resp = resp.error_for_status()?;
+    
+    let json: Value = resp.json().await?;
+
+    Ok(json)
   }
 }

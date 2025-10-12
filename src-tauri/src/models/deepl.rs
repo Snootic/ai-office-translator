@@ -1,4 +1,4 @@
-use reqwest::Response;
+use reqwest::{Error, Response};
 use serde_json::Value;
 use tauri::http::HeaderMap;
 
@@ -20,23 +20,28 @@ impl Deepl {
     }
   }
 
-  pub async fn check_usage(&self) -> Result<Value, reqwest::Error> {
-    let usage: Response = self.client.get("https://api-free.deepl.com/v2/usage").await;
-    let usage = usage.json().await.unwrap();
+  pub async fn check_usage(&self) -> Result<Value, Error> {
+    let resp: Response = self.client.get("https://api-free.deepl.com/v2/usage").await;
+    let resp = resp.error_for_status()?;
+    let usage = resp.json().await.unwrap();
 
     Ok(usage)
   }
 
-  pub async fn get_target_languages(&self) -> Result<Value, reqwest::Error> {
-    let languages: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=target").await;
-    let languages = languages.json().await.unwrap();
+  pub async fn get_target_languages(&self) -> Result<Value, Error> {
+    let resp: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=target").await;
+    let resp = resp.error_for_status()?;
+
+    let languages = resp.json().await.unwrap();
 
     Ok(languages)
   }
 
-  pub async fn get_source_languages(&self) -> Result<Value, reqwest::Error> {
-    let languages: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=source").await;
-    let languages = languages.json().await.unwrap();
+  pub async fn get_source_languages(&self) -> Result<Value, Error> {
+    let resp: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=source").await;
+    let resp = resp.error_for_status()?;
+
+    let languages = resp.json().await.unwrap();
 
     Ok(languages)
   }
