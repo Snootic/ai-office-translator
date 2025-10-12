@@ -1,60 +1,40 @@
 pub mod utils_handler {
-    use crate::{ai_translator, process_call};
-    use process_call::handle_python_call;
+    use crate::{models::{chatgpt::ChatGPT, deepl::Deepl}};
+    use serde_json::Value;
 
     #[tauri::command]
-    pub async fn get_gpt_models(api_key: &str) -> Result<String, String> {
-        handle_python_call(
-            ai_translator::get_utils().unwrap_or(""),
-            "utils",
-            "GPTAccount",
-            Some(vec![api_key]),
-            "models",
-            None,
-            None,
-        )
-        .map_err(|e| e.to_string())
+    pub async fn get_gpt_models(api_key: &str) -> Result<Vec<String>, String> {
+        let chat_gpt = ChatGPT::new(String::from(api_key));
+        match chat_gpt.list_models().await {
+            Ok(value) => Ok(value),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     #[tauri::command]
-    pub async fn get_source_languages(api_key: &str) -> Result<String, String> {
-        handle_python_call(
-            ai_translator::get_utils().unwrap_or(""),
-            "utils",
-            "DeeplAccount",
-            Some(vec![api_key]),
-            "get_languages",
-            Some(vec!["source"]),
-            None,
-        )
-        .map_err(|e| e.to_string())
+    pub async fn get_source_languages(api_key: &str) -> Result<Value, String> {
+        let deepl: Deepl = Deepl::new(String::from(api_key));
+        match deepl.get_source_languages().await {
+            Ok(value) => Ok(value),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     #[tauri::command]
-    pub async fn get_target_languages(api_key: &str) -> Result<String, String> {
-        handle_python_call(
-            ai_translator::get_utils().unwrap_or(""),
-            "utils",
-            "DeeplAccount",
-            Some(vec![api_key]),
-            "get_languages",
-            Some(vec!["target"]),
-            None,
-        )
-        .map_err(|e| e.to_string())
+    pub async fn get_target_languages(api_key: &str) -> Result<Value, String> {
+        let deepl: Deepl = Deepl::new(String::from(api_key));
+        match deepl.get_target_languages().await {
+            Ok(value) => Ok(value),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     #[tauri::command]
-    pub async fn check_usage(api_key: &str) -> Result<String, String> {
-        handle_python_call(
-            ai_translator::get_utils().unwrap_or(""),
-            "utils",
-            "DeeplAccount",
-            Some(vec![api_key]),
-            "check_usage",
-            None,
-            None,
-        )
-        .map_err(|e| e.to_string())
+    pub async fn check_usage(api_key: &str) -> Result<Value, String> {
+        let deepl: Deepl = Deepl::new(String::from(api_key));
+        match deepl.check_usage().await {
+            Ok(value) => Ok(value),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }

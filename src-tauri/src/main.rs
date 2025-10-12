@@ -7,6 +7,8 @@ mod glossary;
 mod process_call;
 mod translate;
 mod utils;
+mod models;
+
 use ai_translator;
 
 use std::{env, sync::Mutex};
