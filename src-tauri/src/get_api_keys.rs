@@ -9,20 +9,26 @@ pub struct Item {
     pub key: String,
 }
 
-pub fn get_deepl_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open(ai_translator::get_deepl_keys_path().unwrap_or(""))?;
+#[tauri::command]
+pub fn get_deepl_keys() -> Result<Vec<Item>, String> {
+    let file = File::open(ai_translator::get_deepl_keys_path().unwrap_or(""))
+        .map_err(|e| e.to_string())?;
     let reader = BufReader::new(file);
 
-    let items: Vec<Item> = serde_json::from_reader(reader)?;
+    let items: Vec<Item> = serde_json::from_reader(reader)
+        .map_err(|e| e.to_string())?;
 
     Ok(items)
 }
 
-pub fn get_gpt_keys() -> Result<Vec<Item>, Box<dyn std::error::Error>> {
-    let file = File::open(ai_translator::get_gpt_keys_path().unwrap_or(""))?;
+#[tauri::command]
+pub fn get_gpt_keys() -> Result<Vec<Item>, String> {
+    let file = File::open(ai_translator::get_gpt_keys_path().unwrap_or(""))
+        .map_err(|e| e.to_string())?;
     let reader = BufReader::new(file);
 
-    let items: Vec<Item> = serde_json::from_reader(reader)?;
+    let items: Vec<Item> = serde_json::from_reader(reader)
+        .map_err(|e| e.to_string())?;
 
     Ok(items)
 }
