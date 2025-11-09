@@ -16,6 +16,7 @@ pub trait Glossary {
   fn dictionaries_from_text_file(&self, file: PathBuf) -> Vec<Dictionary>;
   async fn create_glossary(&self, file: PathBuf) -> Value;
   async fn get_glossaries(&self) -> Value;
+  async fn delete_glossary(&self, glossary_id: String) -> Value;
 }
 
 pub struct Deepl {
@@ -255,6 +256,13 @@ impl Glossary for Deepl {
     let resp = self.client.get("https://api-free.deepl.com/v3/glossaries").await;
     let resp: Value = resp.json().await.unwrap();
       
+    resp
+  }
+
+  async fn delete_glossary(&self, glossary_id: String) -> Value {
+    let resp = self.client.delete(&format!("https://api-free.deepl.com/v3/glossaries/{}", glossary_id).as_str()).await;
+    let resp = resp.json().await.unwrap();
+
     resp
   }
 }

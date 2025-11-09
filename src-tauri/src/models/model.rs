@@ -36,4 +36,14 @@ impl APIClient {
     .await
     .unwrap()
   }
+
+  pub async fn delete(&self, url: &str) -> reqwest::Response {
+    self.client
+    .delete(url)
+    .bearer_auth(&self.api_key)
+    .headers(self.headers.clone())
+    .send()
+    .await
+    .unwrap()
+  }
 }

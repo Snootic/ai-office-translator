@@ -20,6 +20,7 @@ pub fn handlers<R: tauri::Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool {
       deepl::get_target_languages,
       deepl::create_glossary,
       deepl::get_glossaries,
+      deepl::delete_glossary,
       documents_handler::load_document,
       translate_handler::translate_document,
     ]

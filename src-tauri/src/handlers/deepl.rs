@@ -41,3 +41,9 @@ pub async fn get_glossaries(api_key: &str) -> Result<Value, String> {
     let deepl: Deepl = Deepl::new(String::from(api_key));
     Ok(deepl.get_glossaries().await)
 }
+
+#[tauri::command]
+pub async fn delete_glossary(api_key: &str, glossary_id: String) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    Ok(deepl.delete_glossary(glossary_id).await)
+}
