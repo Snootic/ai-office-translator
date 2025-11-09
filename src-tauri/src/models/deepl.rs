@@ -9,7 +9,7 @@ pub trait Glossary {
   async fn create_glossary_from_excel(&self, excel_file_path: String) -> Value;
   fn create_glossary(&self) -> Value;
   fn load_json(&self, json: Value) -> Value;
-  fn get_glossaries(&self) -> Vec<Value>;
+  async fn get_glossaries(&self) -> Value;
 }
 
 pub struct Deepl {
@@ -124,7 +124,10 @@ impl Glossary for Deepl {
         todo!()
     }
   
-  fn get_glossaries(&self) -> Vec<Value> {
-        todo!()
-    }
+  async fn get_glossaries(&self) -> Value {
+    let resp = self.client.get("https://api-free.deepl.com/v3/glossaries").await;
+    let resp: Value = resp.json().await.unwrap();
+      
+    resp
+  }
 }

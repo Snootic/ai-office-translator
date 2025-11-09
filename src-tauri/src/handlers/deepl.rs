@@ -33,3 +33,9 @@ pub async fn create_glossary_from_excel(api_key: &str, excel_file_path: String) 
     let deepl: Deepl = Deepl::new(String::from(api_key));
     Ok(deepl.create_glossary_from_excel(excel_file_path).await)
 }
+
+#[tauri::command]
+pub async fn get_glossaries(api_key: &str) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    Ok(deepl.get_glossaries().await)
+}
