@@ -114,9 +114,6 @@ async fn set_complete(app: tauri::AppHandle, state: State<'_, Mutex<SideTasks>>,
     if state.updater && state.dependencies {
         let update_window = app.get_webview_window("update").unwrap();
         let main_window = app.get_webview_window("main").unwrap();
-        println!("{}",main_window.app_handle().asset_resolver().get("main.js".to_string()).unwrap().mime_type);
-        println!("{}",main_window.app_handle().asset_resolver().get("get_languages.js".to_string()).unwrap().mime_type);
-        println!("{}",main_window.app_handle().asset_resolver().get("document.js".to_string()).unwrap().mime_type);
         update_window.close().unwrap();
         main_window.show().unwrap();
     }
