@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fs::File, io::BufReader, path::PathBuf};
 
 use reqwest::{Error, Response};
 use serde_json::{json, Value};
@@ -161,7 +161,58 @@ impl Glossary for Deepl {
   }
   
   fn dictionaries_from_json(&self, json: PathBuf) -> Vec<Dictionary> {
-    todo!("{}",json.display())
+    let file = File::open(json).unwrap_or_else(|_| panic!("Could not open json file"));
+    let reader = BufReader::new(file);
+
+    let object: Value = serde_json::from_reader(reader).unwrap();
+
+    let mut dictionaries: Vec<Dictionary> = Vec::new();
+
+    if object.is_array() {
+      for language_object in object.as_array().unwrap_or(&vec![]) {
+        let source_lang = language_object["source_lang"].to_string();
+        let target_lang = language_object["target_lang"].to_string();
+
+        let mut entries:String = String::new();
+
+        for (key, value) in language_object.as_object().unwrap().iter() {
+          if key != "source_lang" && key != "target_lang" {
+            entries.push_str(&format!("{},{}\n", key, value.to_string()));
+          }
+        }
+
+        let dict = Dictionary::new(
+          source_lang,
+          target_lang,
+          entries,
+          "csv".to_string()
+        );
+
+        dictionaries.push(dict);
+      }
+    } else if object.is_object() {
+      let source_lang = object["source_lang"].to_string();
+      let target_lang = object["target_lang"].to_string();
+
+      let mut entries:String = String::new();
+
+      for (key, value) in object.as_object().unwrap().iter() {
+        if key != "source_lang" && key != "target_lang" {
+          entries.push_str(&format!("{},{}\n", key, value.to_string()));
+        }
+      }
+
+      let dict = Dictionary::new(
+        source_lang,
+        target_lang,
+        entries,
+        "csv".to_string()
+      );
+
+      dictionaries.push(dict);
+  }
+
+    dictionaries
   }
 
   fn dictionaries_from_text_file(&self, file: PathBuf) -> Vec<Dictionary> {
