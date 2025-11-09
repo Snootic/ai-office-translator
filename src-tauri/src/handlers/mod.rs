@@ -18,7 +18,7 @@ pub fn handlers<R: tauri::Runtime>() -> impl Fn(tauri::ipc::Invoke<R>) -> bool {
       deepl::check_usage,
       deepl::get_source_languages,
       deepl::get_target_languages,
-      deepl::create_glossary_from_excel,
+      deepl::create_glossary,
       deepl::get_glossaries,
       documents_handler::load_document,
       translate_handler::translate_document,

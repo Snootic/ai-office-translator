@@ -1,6 +1,7 @@
 pub type LanguageName = String;
 pub type LanguageCode = String;
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Language {
   name: LanguageName,
   code: LanguageCode,

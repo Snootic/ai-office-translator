@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use reqwest::{Error, Response};
 use serde_json::{json, Value};
 use tauri::http::HeaderMap;
@@ -5,10 +7,13 @@ use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 
 use super::model::APIClient;
 
+use crate::structs::{Dictionary::*, Glossary::GlossaryType, Language::*};
+
 pub trait Glossary {
-  async fn create_glossary_from_excel(&self, excel_file_path: String) -> Value;
-  fn create_glossary(&self) -> Value;
-  fn load_json(&self, json: Value) -> Value;
+  fn dictionaries_from_excel(&self, excel_file_path: PathBuf) -> Vec<Dictionary>;
+  fn dictionaries_from_json(&self, json: PathBuf) -> Vec<Dictionary>;
+  fn dictionaries_from_text_file(&self, file: PathBuf) -> Vec<Dictionary>;
+  async fn create_glossary(&self, file: PathBuf) -> Value;
   async fn get_glossaries(&self) -> Value;
 }
 
@@ -36,40 +41,59 @@ impl Deepl {
     Ok(usage)
   }
 
-  pub async fn get_target_languages(&self) -> Result<Value, Error> {
+  pub async fn get_target_languages(&self) -> Result<Vec<Language>, Error> {
     let resp: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=target").await;
     let resp = resp.error_for_status()?;
 
-    let languages = resp.json().await.unwrap();
+    let result: Value = resp.json().await.unwrap();
+
+    let mut languages: Vec<Language> = Vec::new();
+
+    for language_object in result.as_array().unwrap_or(&vec![]) {
+      let language: Language = Language::new(
+        language_object["name"].as_str().unwrap_or("").to_string(),
+        language_object["language"].as_str().unwrap_or("").to_string()
+      );
+
+      languages.push(language);
+    }
 
     Ok(languages)
   }
 
-  pub async fn get_source_languages(&self) -> Result<Value, Error> {
+  pub async fn get_source_languages(&self) -> Result<Vec<Language>, Error> {
     let resp: Response = self.client.get("https://api-free.deepl.com/v2/languages?type=source").await;
     let resp = resp.error_for_status()?;
 
-    let languages = resp.json().await.unwrap();
+    let result: Value = resp.json().await.unwrap();
+
+    let mut languages: Vec<Language> = Vec::new();
+
+    for language_object in result.as_array().unwrap_or(&vec![]) {
+      let language: Language = Language::new(
+        language_object["name"].as_str().unwrap_or("").to_string(),
+        language_object["language"].as_str().unwrap_or("").to_string()
+      );
+
+      languages.push(language);
+    }
 
     Ok(languages)
   }
 }
 
 impl Glossary for Deepl {
-  async fn create_glossary_from_excel(&self, excel_file_path: String) -> Value {
+  fn dictionaries_from_excel(&self, excel_file_path: PathBuf) -> Vec<Dictionary> {
       // I believe this works, couldn't test properly because I keep getting quota exceeded message
       // Despite not using the API
 
       let mut workbook: Xlsx<_> = open_workbook(&excel_file_path).expect("Cannot open file");
 
-      let mut filename = excel_file_path.split(".xls").next().unwrap_or("");
-      filename = filename.split("/").last().unwrap_or("");
-
-      let mut dictionaries: Vec<Value> = [].to_vec();
+      let mut dictionaries: Vec<Dictionary> = Vec::new();
 
       for sheet_name in workbook.sheet_names() {
-        let mut source_lang: String = String::new();
-        let mut target_lang: String = String::new();
+        let mut source_lang: LanguageCode = String::new();
+        let mut target_lang: LanguageCode = String::new();
 
         let mut entries: String = String::new();
 
@@ -94,36 +118,56 @@ impl Glossary for Deepl {
           }
         }
 
-        let dict = json!({
-          "source_lang": source_lang,
-          "target_lang": target_lang,
-          "entries": entries,
-          "entries_format": "csv"
-        });
+        let dict: Dictionary = Dictionary::new(
+          source_lang,
+          target_lang,
+          entries,
+          "csv".to_string()
+        );
 
         dictionaries.push(dict);
       }
 
-      let body = json!({
-        "name": filename,
-        "dictionaries": dictionaries
-      });
+      dictionaries
+    }
+  
+  async fn create_glossary(&self, file: PathBuf) -> Value {
+    let file_extension = file.extension().unwrap_or_else(|| panic!("Could not load file"));
+    let filename = file.file_stem()
+      .unwrap_or_else(|| panic!("Could not load file"))
+      .to_str()
+      .unwrap();
 
-      let resp = self.client.post_json("https://api-free.deepl.com/v3/glossaries", &body).await;
-      
-      let resp: Value = resp.json().await.unwrap();
-      
-      resp
-    }
+    let dictionaries = match file_extension.to_str() {
+      Some("xlsx") => {
+        self.dictionaries_from_excel(file.clone())
+      },
+      Some("txt") => {
+        self.dictionaries_from_text_file(file.clone())
+      },
+      Some("json") => {
+        self.dictionaries_from_json(file.clone())
+      }
+      _ => panic!("File not supported")
+    };
+
+    let glossary = GlossaryType::new(filename, dictionaries);
+
+    let resp = self.client.post_json("https://api-free.deepl.com/v3/glossaries", &json!(glossary)).await;
+    
+    let resp: Value = resp.json().await.unwrap();
+    
+    resp
+  }
   
-  fn create_glossary(&self) -> Value {
-        todo!()
-    }
-  
-  fn load_json(&self, json: Value) -> Value {
-        todo!()
-    }
-  
+  fn dictionaries_from_json(&self, json: PathBuf) -> Vec<Dictionary> {
+    todo!("{}",json.display())
+  }
+
+  fn dictionaries_from_text_file(&self, file: PathBuf) -> Vec<Dictionary> {
+    todo!("{}",file.display())
+  }
+
   async fn get_glossaries(&self) -> Value {
     let resp = self.client.get("https://api-free.deepl.com/v3/glossaries").await;
     let resp: Value = resp.json().await.unwrap();
