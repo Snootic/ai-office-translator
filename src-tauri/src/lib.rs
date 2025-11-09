@@ -7,9 +7,7 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 
 static INIT: Once = Once::new();
 static mut DOCUMENTS: Option<String> = None;
-static mut UTILS: Option<String> = None;
 static mut TRANSLATE: Option<String> = None;
-static mut GLOSSARY: Option<String> = None;
 static mut GPT_KEYS: Option<String> = None;
 static mut DEEPL_KEYS: Option<String> = None;
 
@@ -37,26 +35,10 @@ pub fn initialize_modules(app: &App) {
 
         let binding = app
             .path()
-            .resolve("src/translator/utils.py", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            UTILS = Some(binding.to_str().unwrap().to_string());
-        }
-
-        let binding = app
-            .path()
             .resolve("src/translator/translate.py", BaseDirectory::Resource)
             .unwrap();
         unsafe {
             TRANSLATE = Some(binding.to_str().unwrap().to_string());
-        }
-
-        let binding = app
-            .path()
-            .resolve("src/translator/glossary.py", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            GLOSSARY = Some(binding.to_str().unwrap().to_string());
         }
 
         let binding = app
@@ -81,16 +63,8 @@ pub fn get_documents() -> Option<&'static str> {
     unsafe { DOCUMENTS.as_deref() }
 }
 
-pub fn get_utils() -> Option<&'static str> {
-    unsafe { UTILS.as_deref() }
-}
-
 pub fn get_translate() -> Option<&'static str> {
     unsafe { TRANSLATE.as_deref() }
-}
-
-pub fn get_glossary() -> Option<&'static str> {
-    unsafe { GLOSSARY.as_deref() }
 }
 
 pub fn get_gpt_keys_path() -> Option<&'static str> {
