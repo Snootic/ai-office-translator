@@ -8,6 +8,7 @@ pub mod documents_handler {
 
     use crate::{ai_translator, process_call};
     use process_call::handle_python_call;
+    use tauri::State;
 
     pub fn copy_file(file_data: Vec<u8>, file_name: &str) -> Result<String, String> {
         let file_relative_path = format!(".{}", file_name);
@@ -23,7 +24,7 @@ pub mod documents_handler {
     }
 
     #[tauri::command]
-    pub fn load_document(file_data: Vec<u8>, file_name: &str) -> Result<String, String> {
+    pub fn load_document(file_data: Vec<u8>, file_name: &str, paths: State<'_, ai_translator::AppPaths>) -> Result<String, String> {
         let file_absolute_path = match copy_file(file_data, file_name) {
             Ok(path) => path,
             Err(e) => {
@@ -35,7 +36,7 @@ pub mod documents_handler {
         let args: Vec<&str> = vec![file_absolute_path.as_str()];
 
         handle_python_call(
-            ai_translator::get_documents().unwrap_or(""),
+            paths.documents.clone(),
             "documents",
             "File",
             None,

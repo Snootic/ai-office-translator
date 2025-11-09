@@ -1,15 +1,9 @@
-use std::{collections::HashMap, path::PathBuf, process::Stdio, sync::{Mutex, Once}};
+use std::{collections::HashMap, path::PathBuf, process::Stdio, sync::{Mutex}};
 
 use serde::Serialize;
 use tauri::{path::BaseDirectory, App, Emitter, Manager, State};
 use tauri_plugin_updater::UpdaterExt;
 use tokio::io::{AsyncBufReadExt, BufReader};
-
-static INIT: Once = Once::new();
-static mut DOCUMENTS: Option<String> = None;
-static mut TRANSLATE: Option<String> = None;
-static mut GPT_KEYS: Option<String> = None;
-static mut DEEPL_KEYS: Option<String> = None;
 
 #[derive(Clone, Serialize)]
 struct AppUpdate {
@@ -23,56 +17,35 @@ pub struct SideTasks {
     pub dependencies: bool,
 }
 
-pub fn initialize_modules(app: &App) {
-    INIT.call_once(|| {
-        let binding = app
-            .path()
-            .resolve("src/translator/documents.py", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            DOCUMENTS = Some(binding.to_str().unwrap().to_string());
-        }
-
-        let binding = app
-            .path()
-            .resolve("src/translator/translate.py", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            TRANSLATE = Some(binding.to_str().unwrap().to_string());
-        }
-
-        let binding = app
-            .path()
-            .resolve("src/config/gpt_keys.json", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            GPT_KEYS = Some(binding.to_str().unwrap().to_string());
-        }
-
-        let binding = app
-            .path()
-            .resolve("src/config/deepl_keys.json", BaseDirectory::Resource)
-            .unwrap();
-        unsafe {
-            DEEPL_KEYS = Some(binding.to_str().unwrap().to_string());
-        }
-    });
+#[derive(Clone)]
+pub struct AppPaths {
+    pub documents: PathBuf,
+    pub translate: PathBuf,
+    pub gpt_keys: PathBuf,
+    pub deepl_keys: PathBuf,
 }
 
-pub fn get_documents() -> Option<&'static str> {
-    unsafe { DOCUMENTS.as_deref() }
-}
-
-pub fn get_translate() -> Option<&'static str> {
-    unsafe { TRANSLATE.as_deref() }
-}
-
-pub fn get_gpt_keys_path() -> Option<&'static str> {
-    unsafe { GPT_KEYS.as_deref() }
-}
-
-pub fn get_deepl_keys_path() -> Option<&'static str> {
-    unsafe { DEEPL_KEYS.as_deref() }
+impl AppPaths {
+    pub fn new(app: &App) -> Self {
+        Self {
+            documents: app
+                .path()
+                .resolve("src/translator/documents.py", BaseDirectory::Resource)
+                .unwrap(),
+            translate: app
+                .path()
+                .resolve("src/translator/translate.py", BaseDirectory::Resource)
+                .unwrap(),
+            gpt_keys: app
+                .path()
+                .resolve("src/config/gpt_keys.json", BaseDirectory::Resource)
+                .unwrap(),
+            deepl_keys: app
+                .path()
+                .resolve("src/config/deepl_keys.json", BaseDirectory::Resource)
+                .unwrap(),
+        }
+    }
 }
 
 #[tauri::command]

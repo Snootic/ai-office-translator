@@ -78,8 +78,9 @@ fn main() {
                 env::set_var("PYTHONHOME", python_path);
             }
             
-            ai_translator::initialize_modules(&app);
-            
+            let app_paths = ai_translator::AppPaths::new(&app);
+            app.manage(app_paths);
+
             let _ = process_call::set_sys_path(libs_binding);
             
             ai_translator::run_updater(app);

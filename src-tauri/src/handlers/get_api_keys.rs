@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use tauri::State;
 use std::fs::File;
 use std::io::BufReader;
 
@@ -10,8 +11,8 @@ pub struct Item {
 }
 
 #[tauri::command]
-pub fn get_deepl_keys() -> Result<Vec<Item>, String> {
-    let file = File::open(ai_translator::get_deepl_keys_path().unwrap_or(""))
+pub fn get_deepl_keys(paths: State<'_, ai_translator::AppPaths>) -> Result<Vec<Item>, String> {
+    let file = File::open(paths.deepl_keys.clone())
         .map_err(|e| e.to_string())?;
     let reader = BufReader::new(file);
 
@@ -22,8 +23,8 @@ pub fn get_deepl_keys() -> Result<Vec<Item>, String> {
 }
 
 #[tauri::command]
-pub fn get_gpt_keys() -> Result<Vec<Item>, String> {
-    let file = File::open(ai_translator::get_gpt_keys_path().unwrap_or(""))
+pub fn get_gpt_keys(paths: State<'_, ai_translator::AppPaths>) -> Result<Vec<Item>, String> {
+    let file = File::open(paths.gpt_keys.clone())
         .map_err(|e| e.to_string())?;
     let reader = BufReader::new(file);
 

@@ -7,7 +7,7 @@ use pyo3::types::{PyDict, PyList, PyTuple};
 
 use serde_json::{json, Value};
 
-pub fn call_python(file_path: &str, module: &str, class: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> PyResult<Value> {
+pub fn call_python(file_path: PathBuf, module: &str, class: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> PyResult<Value> {
 
     let file_name = format!("{}.py",module);
     let code = fs::read_to_string(file_path).expect("Python file not found");
@@ -85,7 +85,7 @@ fn convert_to_json(py_obj: pyo3::Bound<'_, pyo3::PyAny, >) -> PyResult<Value> {
     }
 }
 
-pub fn handle_python_call(file_path: &str, module: &str, object: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> Result<String, String> {
+pub fn handle_python_call(file_path: PathBuf, module: &str, object: &str, object_args: Option<Vec<&str>>, method: &str, args: Option<Vec<&str>>, kwargs: Option<Vec<(&str, &str)>>) -> Result<String, String> {
     match call_python(file_path, module, object, object_args, method, args, kwargs) {
         Ok(output) => {
             let result = json!({
