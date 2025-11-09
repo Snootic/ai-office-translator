@@ -1,6 +1,7 @@
 use reqwest::Client;
 use tauri::http::HeaderMap;
 
+#[derive(Debug)]
 pub struct APIClient {
   api_key: String,
   client: Client,
@@ -25,7 +26,7 @@ impl APIClient {
       .unwrap()
   }
 
-  pub async fn post_json<T: serde::Serialize>(&self, url: &str, body: &T) -> reqwest::Result<reqwest::Response> {
+  pub async fn post_json<T: serde::Serialize>(&self, url: &str, body: &T) -> reqwest::Response {
     self.client
     .post(url)
     .bearer_auth(&self.api_key)
@@ -33,5 +34,6 @@ impl APIClient {
     .json(body)
     .send()
     .await
+    .unwrap()
   }
 }
