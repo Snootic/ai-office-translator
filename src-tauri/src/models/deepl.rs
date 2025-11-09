@@ -6,6 +6,7 @@ use tauri::http::HeaderMap;
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 
 use super::model::APIClient;
+use std::io::BufRead;
 
 use crate::structs::{Dictionary::*, Glossary::GlossaryType, Language::*};
 
@@ -142,7 +143,7 @@ impl Glossary for Deepl {
       Some("xlsx") => {
         self.dictionaries_from_excel(file.clone())
       },
-      Some("txt") => {
+      Some("txt") | Some("csv") => {
         self.dictionaries_from_text_file(file.clone())
       },
       Some("json") => {
@@ -216,7 +217,38 @@ impl Glossary for Deepl {
   }
 
   fn dictionaries_from_text_file(&self, file: PathBuf) -> Vec<Dictionary> {
-    todo!("{}",file.display())
+    let file = File::open(file).expect("Could not open file");
+    let reader = BufReader::new(file);
+    
+    let mut source_lang = String::new();
+    let mut target_lang = String::new();
+    let mut entries = String::new();
+
+    for (line_index, line) in reader.lines().enumerate() {
+      let line = line.expect("Could not read line");
+      let splitted_line: Vec<&str> = line.split(",").collect();
+
+      if line_index == 0 {
+        source_lang = splitted_line[0].to_string();
+        target_lang = splitted_line[1].to_string();
+        continue;
+      }
+
+      entries.push_str(&format!("{},{}\n", splitted_line[0], splitted_line[1]));
+    }
+
+    let dictionary = Dictionary::new(
+      source_lang,
+      target_lang,
+      entries,
+      "csv".to_string()
+    );
+
+    // I don't see a case where the user will try to pass more than one dict
+    // from a single txt or csv file
+    let dictionaries:Vec<Dictionary> = vec![dictionary];
+
+    dictionaries
   }
 
   async fn get_glossaries(&self) -> Value {
