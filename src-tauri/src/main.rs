@@ -1,23 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod documents;
-mod get_api_keys;
-mod glossary;
 mod process_call;
-mod translate;
-mod utils;
 mod models;
+mod handlers;
 
 use ai_translator;
 
 use std::{env, sync::Mutex};
 
-use documents::documents_handler;
-use glossary::glossary_handler;
 use tauri::Manager;
-use translate::translate_handler;
-use utils::utils_handler;
 
 use serde_json::Value;
 
@@ -95,18 +87,7 @@ fn main() {
             
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            documents_handler::load_document,
-            glossary_handler::get_glossaries,
-            utils_handler::get_gpt_models,
-            utils_handler::get_gpt_billing,
-            utils_handler::get_source_languages,
-            utils_handler::get_target_languages,
-            utils_handler::check_usage,
-            translate_handler::translate_document,
-            get_api_keys::get_gpt_keys,
-            get_api_keys::get_deepl_keys
-        ])
+        .invoke_handler(handlers::handlers())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 

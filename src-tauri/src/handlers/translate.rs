@@ -1,5 +1,5 @@
 pub mod translate_handler {
-    use crate::{documents::documents_handler::copy_file, ai_translator, process_call};
+    use crate::{handlers::documents::documents_handler::copy_file, ai_translator, process_call};
     use process_call::handle_python_call;
 
     #[tauri::command]
