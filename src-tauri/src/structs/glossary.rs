@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::structs::Dictionary::*;
+use crate::structs::dictionary::*;
 
 #[derive(Serialize)]
 #[derive(Debug)]

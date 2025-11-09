@@ -8,7 +8,7 @@ use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 use super::model::APIClient;
 use std::io::BufRead;
 
-use crate::structs::{Dictionary::*, Glossary::GlossaryType, Language::*};
+use crate::structs::{dictionary::*, glossary::GlossaryType, language::*};
 
 pub trait Glossary {
   fn dictionaries_from_excel(&self, excel_file_path: PathBuf) -> Vec<Dictionary>;

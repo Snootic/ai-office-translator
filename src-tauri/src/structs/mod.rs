@@ -1,3 +1,3 @@
-pub mod Language;
-pub mod Dictionary;
-pub mod Glossary;
+pub mod language;
+pub mod dictionary;
+pub mod glossary;

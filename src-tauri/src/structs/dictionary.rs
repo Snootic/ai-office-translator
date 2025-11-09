@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::structs::Language::LanguageCode;
+use crate::structs::language::LanguageCode;
 
 #[derive(Serialize)]
 #[derive(Debug)]
