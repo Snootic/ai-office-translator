@@ -5,6 +5,7 @@ mod process_call;
 mod models;
 mod handlers;
 mod structs;
+mod translator;
 
 use ai_translator;
 
