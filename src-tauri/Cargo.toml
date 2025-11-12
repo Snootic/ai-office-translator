@@ -22,6 +22,8 @@ tokio = { version = "1.43.0", features = ["process", "macros"] }
 reqwest = "0.12.12"
 ripunzip = "2.0.0"
 calamine = "0.31.0"
+tiktoken-rs = "0.9.1"
+datetime = "0.5.2"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
