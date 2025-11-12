@@ -1,5 +1,6 @@
 use std::{ ffi::OsString, fmt::Error, path::PathBuf};
 
+use docx_rs::*;
 use calamine::{Reader, SheetVisible, open_workbook_auto};
 use datetime::LocalDateTime;
 use tiktoken_rs::o200k_base;
@@ -80,6 +81,34 @@ impl Document {
     (words, count)
   }
 
+  fn get_dates_metadata(&mut self) {
+    if let Ok(metadata) = std::fs::metadata(&self.file_path) {
+      if let Ok(created) = metadata.created() {
+        let created_on = created
+          .duration_since(std::time::UNIX_EPOCH)
+          .unwrap()
+          .as_secs() as i64;
+        self.created_on = LocalDateTime::at_ms(created_on, 0);
+      }
+      if let Ok(modified) = metadata.modified() {
+        let last_modified_on = modified
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+          self.last_modified_on = LocalDateTime::at_ms(last_modified_on, 0);
+      }
+    }
+  }
+
+  fn calculate_tokens(&mut self, words: Vec<String>) {
+    let bpe = o200k_base().unwrap();
+    let mut tokens: Vec<u32> = Vec::new();
+    for word in words {
+      tokens.extend(bpe.encode_with_special_tokens(&word));
+    }
+
+    self.token_usage = tokens.len() as u32;
+  }
 
   fn load_worksheet(&mut self) {
     let mut workbook = open_workbook_auto(&self.file_path).expect("Cannot open file");
@@ -110,31 +139,72 @@ impl Document {
       all_words.extend(sheet_words);
     }
 
-    if let Ok(metadata) = std::fs::metadata(&self.file_path) {
-      if let Ok(created) = metadata.created() {
-        let created_on = created
-          .duration_since(std::time::UNIX_EPOCH)
-          .unwrap()
-          .as_secs() as i64;
-        self.created_on = LocalDateTime::at_ms(created_on, 0);
-      }
-      if let Ok(modified) = metadata.modified() {
-        let last_modified_on = modified
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-          self.last_modified_on = LocalDateTime::at_ms(last_modified_on, 0);
+    self.get_dates_metadata();
+    self.calculate_tokens(all_words);
+  }
+
+  fn process_paragraph(& mut self, paragraph: Paragraph) -> Vec<String> {
+    let texts: Vec<String> = paragraph.children
+      .into_iter()
+      .filter_map(|child| match child {
+          ParagraphChild::Run(run) => Some(run),
+          _ => None,
+      })
+      .flat_map(|run| {
+        run.children.into_iter().filter_map(|child| match child {
+          RunChild::Text(text) => Some(text.text),
+            _ => None,
+        })
+      })
+      .collect();
+    
+    let mut all_words = Vec::new();
+    for text in texts {
+      let (words, count) = self.count_word(&text);
+      self.word_count += count;
+      all_words.extend(words);
+    }
+    
+    all_words
+  }
+
+  fn load_doc(&mut self) {
+    
+    let file = std::fs::read(&self.file_path).expect("Cannot read file");
+    
+    let reader = read_docx(&file).unwrap();
+
+    let mut all_words: Vec<String> = Vec::new();
+
+    for child in reader.document.children {
+      match child {
+         DocumentChild::Paragraph(paragraph) => {
+          all_words.extend(self.process_paragraph(*paragraph));
+        },
+        DocumentChild::Table(tab) => {
+          tab.rows.into_iter()
+          .filter_map(|child| match child {
+            TableChild::TableRow(row) => Some(row)
+          })
+          .flat_map(|row| row.cells.into_iter())
+          .filter_map(|child| match child {
+            TableRowChild::TableCell(cell) => Some(cell)
+          })
+          .flat_map(|cell| cell.children.into_iter())
+          .filter_map(|child| match child {
+            TableCellContent::Paragraph(paragraph) => Some(paragraph),
+              _ => None,
+          })
+          .for_each(|paragraph| {
+            all_words.extend(self.process_paragraph(paragraph));
+          });
+        },
+        _ => {}
       }
     }
-
-    let bpe = o200k_base().unwrap();
-
-    let mut tokens: Vec<u32> = Vec::new();
-    for word in all_words {
-      tokens.extend(bpe.encode_with_special_tokens(&word));
-    }
-
-    self.token_usage = tokens.len() as u32;
+    
+    self.get_dates_metadata();
+    self.calculate_tokens(all_words);
   }
 
   pub fn load(&mut self) -> Result<(), Error> {
@@ -143,6 +213,10 @@ impl Document {
         self.load_worksheet();
         Ok(())
       },
+      Some("doc") | Some("docx") => {
+        self.load_doc();
+        Ok(())
+      }
       _ => Err(Error)
     }
   }
