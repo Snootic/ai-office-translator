@@ -6,9 +6,7 @@ pub mod documents_handler {
     use std::io::Write;
     use std::path::PathBuf;
 
-    use crate::{ai_translator, process_call, translator::document::Document};
-    use process_call::handle_python_call;
-    use tauri::State;
+    use crate::translator::document::Document;
 
     pub fn copy_file(file_data: Vec<u8>, file_name: &str) -> Result<PathBuf, String> {
         let file_relative_path = format!(".{}", file_name);
@@ -24,7 +22,7 @@ pub mod documents_handler {
     }
 
     #[tauri::command]
-    pub fn load_document(file_data: Vec<u8>, file_name: &str, paths: State<'_, ai_translator::AppPaths>) -> Result<String, String> {
+    pub fn load_document(file_data: Vec<u8>, file_name: &str) -> Result<Document, String> {
         let file_absolute_path: PathBuf = match copy_file(file_data, file_name) {
             Ok(path) => path,
             Err(e) => {
@@ -34,25 +32,8 @@ pub mod documents_handler {
         };
 
         let mut document = Document::new(file_absolute_path);
-        let _ = document.load();
+        document.load().map_err(|_| "Failed to load document".to_string())?;
 
-        let result = String::new();
-
-        Ok(result)
-
-
-        // let args: Vec<&str> = vec![file_absolute_path.as_str()];
-
-        // handle_python_call(
-        //     paths.documents.clone(),
-        //     "documents",
-        //     "File",
-        //     None,
-        //     "load_document",
-        //     Some(args),
-        //     None,
-        // )
-        // .map_err(|e| e.to_string())
-        
+        Ok(document) 
     }
 }
