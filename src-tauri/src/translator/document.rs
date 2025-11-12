@@ -2,16 +2,18 @@ use std::{ ffi::OsString, fmt::Error, path::PathBuf};
 
 use docx_rs::*;
 use calamine::{Reader, SheetVisible, open_workbook_auto};
-use datetime::LocalDateTime;
+use serde::{Deserialize, Serialize};
 use tiktoken_rs::o200k_base;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Document {
+  #[serde(skip)]
   file_path: PathBuf,
+  #[serde(skip)]
   file_extension: OsString,
   word_count: u32,
-  created_on: LocalDateTime,
-  last_modified_on: LocalDateTime,
+  created_on: i64,
+  last_modified_on: i64,
   token_usage: u32
 }
 
@@ -22,8 +24,8 @@ impl Document {
       file_path,
       file_extension,
       word_count: 0,
-      created_on: LocalDateTime::at_ms(0, 0),
-      last_modified_on: LocalDateTime::at_ms(0, 0),
+      created_on: 0,
+      last_modified_on: 0,
       token_usage: 0
     }
   }
@@ -84,18 +86,16 @@ impl Document {
   fn get_dates_metadata(&mut self) {
     if let Ok(metadata) = std::fs::metadata(&self.file_path) {
       if let Ok(created) = metadata.created() {
-        let created_on = created
+        self.created_on = created
           .duration_since(std::time::UNIX_EPOCH)
           .unwrap()
           .as_secs() as i64;
-        self.created_on = LocalDateTime::at_ms(created_on, 0);
       }
       if let Ok(modified) = metadata.modified() {
-        let last_modified_on = modified
+        self.last_modified_on = modified
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
-          self.last_modified_on = LocalDateTime::at_ms(last_modified_on, 0);
       }
     }
   }
