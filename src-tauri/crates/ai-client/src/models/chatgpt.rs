@@ -1,11 +1,9 @@
 use reqwest::{Error, Response};
 use serde_json::Value;
 
-use crate::models::model::APIClient;
+use crate::structs::api_client::APIClient;
+use crate::structs::chatgpt::ChatGPT;
 
-pub struct ChatGPT {
-    client: APIClient,
-}
 
 impl ChatGPT {
   pub fn new(api_key: String) -> Self {

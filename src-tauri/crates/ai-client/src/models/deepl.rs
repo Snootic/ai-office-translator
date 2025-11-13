@@ -2,12 +2,13 @@ use std::{fs::File, io::BufReader, path::PathBuf};
 
 use reqwest::{Error, Response};
 use serde_json::{json, Value};
-use tauri::http::HeaderMap;
+use reqwest::header::HeaderMap;
 use calamine::{Data, DataType, Reader, Xlsx, open_workbook};
 
-use super::model::APIClient;
 use std::io::BufRead;
 
+use crate::structs::api_client::APIClient;
+use crate::structs::deepl::Deepl;
 use crate::structs::{dictionary::*, glossary::GlossaryType, language::*};
 
 pub trait Glossary {
@@ -17,10 +18,6 @@ pub trait Glossary {
   async fn create_glossary(&self, file: PathBuf) -> Value;
   async fn get_glossaries(&self) -> Value;
   async fn delete_glossary(&self, glossary_id: String) -> Value;
-}
-
-pub struct Deepl {
-  client: APIClient,
 }
 
 impl Deepl {

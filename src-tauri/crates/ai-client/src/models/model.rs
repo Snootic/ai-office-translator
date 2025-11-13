@@ -1,12 +1,7 @@
 use reqwest::Client;
-use tauri::http::HeaderMap;
+use reqwest::header::HeaderMap;
 
-#[derive(Debug)]
-pub struct APIClient {
-  api_key: String,
-  client: Client,
-  headers: HeaderMap
-}
+use crate::structs::api_client::APIClient;
 
 impl APIClient {
   pub fn new(api_key: String, headers: Option<HeaderMap>) -> Self {

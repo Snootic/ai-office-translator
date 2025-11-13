@@ -1,13 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod process_call;
-mod models;
 mod handlers;
-mod structs;
-mod translator;
-
-use ai_translator;
 
 use std::{env, sync::Mutex};
 
@@ -82,7 +76,7 @@ fn main() {
             let app_paths = ai_translator::AppPaths::new(&app);
             app.manage(app_paths);
 
-            let _ = process_call::set_sys_path(libs_binding);
+            let _ = python_bridge::set_sys_path(libs_binding);
             
             ai_translator::run_updater(app);
 

@@ -38,14 +38,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ai-client"
+version = "0.1.0"
+dependencies = [
+ "calamine",
+ "reqwest 0.12.12",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "ai_translator"
 version = "0.4.1-1"
 dependencies = [
- "calamine",
- "datetime",
- "docx-rs",
- "ooxmlsdk",
- "pyo3",
+ "ai-client",
+ "python-bridge",
  "reqwest 0.12.12",
  "ripunzip",
  "serde",
@@ -55,8 +62,8 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
- "tiktoken-rs",
  "tokio",
+ "translator",
 ]
 
 [[package]]
@@ -2253,12 +2260,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indoc"
-version = "2.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
-
-[[package]]
 name = "infer"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3595,15 +3596,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57fe09249128b3173d092de9523eaa75136bf7ba85e0d69eca241c7939c933cc"
 dependencies = [
  "cfg-if",
- "indoc",
  "libc",
  "memoffset",
  "once_cell",
  "portable-atomic",
  "pyo3-build-config",
  "pyo3-ffi",
- "pyo3-macros",
- "unindent",
 ]
 
 [[package]]
@@ -3627,28 +3625,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "pyo3-macros"
-version = "0.23.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91871864b353fd5ffcb3f91f2f703a22a9797c91b9ab497b1acac7b07ae509c7"
+name = "python-bridge"
+version = "0.1.0"
 dependencies = [
- "proc-macro2",
- "pyo3-macros-backend",
- "quote",
- "syn 2.0.110",
-]
-
-[[package]]
-name = "pyo3-macros-backend"
-version = "0.23.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43abc3b80bc20f3facd86cd3c60beed58c3e2aa26213f3cda368de39c60a27e4"
-dependencies = [
- "heck 0.5.0",
- "proc-macro2",
- "pyo3-build-config",
- "quote",
- "syn 2.0.110",
+ "pyo3",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -5422,6 +5404,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "translator"
+version = "0.1.0"
+dependencies = [
+ "calamine",
+ "datetime",
+ "docx-rs",
+ "ooxmlsdk",
+ "serde",
+ "serde_json",
+ "tiktoken-rs",
+]
+
+[[package]]
 name = "tray-icon"
 version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5550,12 +5545,6 @@ name = "unicode-width"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
-
-[[package]]
-name = "unindent"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7de7d73e1754487cb58364ee906a499937a0dfabd86bcb980fa99ec8c8fa2ce"
 
 [[package]]
 name = "untrusted"

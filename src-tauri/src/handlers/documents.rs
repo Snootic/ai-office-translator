@@ -6,7 +6,7 @@ pub mod documents_handler {
     use std::io::Write;
     use std::path::PathBuf;
 
-    use crate::translator::document::Document;
+    use translator::Document;
 
     pub fn copy_file(file_data: Vec<u8>, file_name: &str) -> Result<PathBuf, String> {
         let file_relative_path = format!(".{}", file_name);

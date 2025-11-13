@@ -1,4 +1,4 @@
-use crate::{models::chatgpt::ChatGPT};
+use ai_client::ChatGPT;
 use serde_json::Value;
 
 #[tauri::command]

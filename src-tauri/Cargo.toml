@@ -1,3 +1,7 @@
+[workspace]
+members = [".", "crates/translator", "crates/python-bridge", "crates/ai-client"]
+resolver = "2"
+
 [package]
 name = "ai_translator"
 version = "0.4.1-1"
@@ -5,38 +9,30 @@ description = "An application to translate files using AI"
 authors = ["Snootic"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
-
 
 [dependencies]
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-pyo3 = { version = "0.23.3"}
 tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2"
 tokio = { version = "1.43.0", features = ["process", "macros"] }
 reqwest = "0.12.12"
 ripunzip = "2.0.0"
-calamine = "0.31.0"
-tiktoken-rs = "0.9.1"
-datetime = "0.5.2"
-docx-rs = "0.4.18"
-ooxmlsdk = "0.3.0"
+
+# Your local crates
+translator = { path = "crates/translator" }
+python-bridge = { path = "crates/python-bridge" }
+ai-client = { path = "crates/ai-client" }
 
 [features]
-# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
-#auto-initialize = ["pyo3/auto-initialize"]
-#default = ["auto-initialize"]
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"
 
-# Speed up compilation
 [profile.dev]
 opt-level = 1
 incremental = true

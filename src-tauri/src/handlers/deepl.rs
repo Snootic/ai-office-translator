@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
-use crate::{models::deepl::{Deepl, Glossary}, structs::language::Language};
+use ai_client::models::deepl::Glossary;
+use ai_client::{Deepl, structs::language::Language};
 use serde_json::Value;
 
 #[tauri::command]

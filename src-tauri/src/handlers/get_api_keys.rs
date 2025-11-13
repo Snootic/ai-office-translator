@@ -3,8 +3,6 @@ use tauri::State;
 use std::fs::File;
 use std::io::BufReader;
 
-use crate::ai_translator;
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Item {
     pub key: String,

@@ -1,8 +1,7 @@
 pub mod translate_handler {
-    use crate::{handlers::documents::documents_handler::copy_file, ai_translator, process_call};
-    use process_call::handle_python_call;
+    use crate::{handlers::documents::documents_handler::copy_file};
+    use python_bridge::handle_python_call;
     use tauri::State;
-
 
     #[tauri::command]
     pub async fn translate_document(
@@ -17,7 +16,7 @@ pub mod translate_handler {
         let file_abs_path =
             copy_file(file_data, file_name).map_err(|e| format!("Failed to copy file: {}", e))?;
 
-        args.insert(0, &file_abs_path);
+        // args.insert(0, &file_abs_path);
 
         handle_python_call(
             paths.translate.clone(),
