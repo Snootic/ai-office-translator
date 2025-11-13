@@ -22,16 +22,10 @@ function fill_model_select(element, list){
 async function get_models() {
     try {
         const result = await invoke('get_gpt_models', { apiKey: apiKey });
-        const parsedResult = JSON.parse(result);
 
-        if (parsedResult.success) {
+        fill_model_select(model_select, result)
+        fill_model_select(model_select,["deepl"])
 
-            fill_model_select(model_select, parsedResult.output.gpt_models)
-            fill_model_select(model_select,["deepl"])
-
-        } else {
-            console.error('Error:', parsedResult.output);
-        }
     } catch (error) {
         console.error('Failed to get data:', error);
     }

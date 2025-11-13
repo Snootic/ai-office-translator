@@ -1,0 +1,50 @@
+use std::path::PathBuf;
+
+use ai_client::models::deepl::Glossary;
+use ai_client::{Deepl, structs::language::Language};
+use serde_json::Value;
+
+#[tauri::command]
+pub async fn check_usage(api_key: &str) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    match deepl.check_usage().await {
+        Ok(value) => Ok(value),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn get_source_languages(api_key: &str) -> Result<Vec<Language>, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    match deepl.get_source_languages().await {
+        Ok(value) => Ok(value),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn get_target_languages(api_key: &str) -> Result<Vec<Language>, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    match deepl.get_target_languages().await {
+        Ok(value) => Ok(value),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn create_glossary(api_key: &str, file_path: String) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    Ok(deepl.create_glossary(PathBuf::from(file_path)).await)
+}
+
+#[tauri::command]
+pub async fn get_glossaries(api_key: &str) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    Ok(deepl.get_glossaries().await)
+}
+
+#[tauri::command]
+pub async fn delete_glossary(api_key: &str, glossary_id: String) -> Result<Value, String> {
+    let deepl: Deepl = Deepl::new(String::from(api_key));
+    Ok(deepl.delete_glossary(glossary_id).await)
+}

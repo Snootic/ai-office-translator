@@ -1,0 +1,3 @@
+[build]
+jobs = 4  # Limit parallel jobs
+

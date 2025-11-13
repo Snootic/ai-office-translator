@@ -21,16 +21,10 @@ function fill_select(element, list) {
 async function get_source_languages() {
     try {
         const result = await invoke('get_source_languages', { apiKey: apiKey });
-        const parsedResult = JSON.parse(result);
 
-        if (parsedResult.success) {
-            const select = document.getElementById("source-language")
+        const select = document.getElementById("source-language")
 
-            fill_select(select, parsedResult.output)
-
-        } else {
-            console.error('Error:', parsedResult.output);
-        }
+        fill_select(select, result)
     } catch (error) {
         console.error('Failed to get data:', error);
     }
@@ -39,16 +33,10 @@ async function get_source_languages() {
 async function get_target_languages() {
     try {
         const result = await invoke('get_target_languages', { apiKey: apiKey });
-        const parsedResult = JSON.parse(result);
 
-        if (parsedResult.success) {
-            const select = document.getElementById("target-language")
+        const select = document.getElementById("target-language")
 
-            fill_select(select, parsedResult.output)
-
-        } else {
-            console.error('Error:', parsedResult.output);
-        }
+        fill_select(select, result)
     } catch (error) {
         console.error('Failed to get data:', error);
     }
